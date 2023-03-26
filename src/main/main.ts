@@ -19,7 +19,10 @@ class AppUpdater {
   constructor() {
     log.transports.file.level = 'info';
     autoUpdater.logger = log;
-    autoUpdater.checkForUpdatesAndNotify();
+    autoUpdater.checkForUpdatesAndNotify({
+      title: 'Atualização pronta para instalar',
+      body: 'Uma nova versão foi baixada e será instalada automaticamente assim que SGrande Delivery Printer fechar',
+    });
   }
 }
 
