@@ -18,6 +18,7 @@ export const StyledPrintTypography = styled.p<StyledPrintTypographyProps>`
   color: #000;
   font-family: sans-serif;
   word-break: break-word;
+  margin: 0;
 
   ${props =>
     props.bold &&

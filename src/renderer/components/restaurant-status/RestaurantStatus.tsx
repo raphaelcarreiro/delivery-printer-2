@@ -16,14 +16,10 @@ const useStyles = makeStyles({
   }),
   statusContainer: {
     display: 'flex',
-    justifyContent: 'center',
-    margin: '10px 0 20px',
-    border: '1px solid #eee',
     borderRadius: 4,
     height: 45,
-    padding: '0 10px',
     flexShrink: 0,
-    width: 250,
+    width: 350,
   },
   loading: {
     display: 'flex',
