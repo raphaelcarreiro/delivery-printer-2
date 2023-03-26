@@ -155,7 +155,7 @@
     "webpack-merge": "^5.8.0"
   },
   "build": {
-    "productName": "SGrande-Delivery-Printer",
+    "productName": "SGrande Delivery Printer",
     "appId": "com.sgrande.delivery",
     "asar": true,
     "asarUnpack": "**\\*.{node,dll}",
