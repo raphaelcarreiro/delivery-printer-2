@@ -8,7 +8,6 @@ import MessagingProvider from './providers/messaging';
 import { store } from './store';
 import { BrowserRouter } from './routes/BrowserRouter';
 import { history } from './services/history';
-import './app.css';
 
 const App: React.FC = () => (
   <BrowserRouter history={history}>
