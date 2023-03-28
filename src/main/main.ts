@@ -119,6 +119,8 @@ ipcMain.handle('print', (_, deviceName?: string) => {
         collate: false,
         copies: 1,
         silent: true,
+        printBackground: false,
+        duplexMode: 'simplex',
         margins: {
           marginType: 'none',
         },
