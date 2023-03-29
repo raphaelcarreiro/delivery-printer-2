@@ -49,6 +49,7 @@ const useStyles = makeStyles<Theme, UseStylesProps>(theme => ({
     border: `2px solid ${theme.palette.primary.main}`,
     height: 60,
     borderRadius: 30,
+    objectFit: 'cover',
   },
   linkLogout: {
     cursor: 'pointer',
