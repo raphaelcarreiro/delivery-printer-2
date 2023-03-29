@@ -12,6 +12,7 @@ import PrintByProduct from '../print/PrintByProduct';
 import PrintOnlyShipment from '../print/PrintOnlyShipment';
 import Print from '../print/Print';
 import Shipment from '../print/Shipment';
+import BoardPrint from '../print/BoardPrint';
 
 const Home: React.FC = () => {
   const [orders, setOrders] = useState<OrderData[]>([]);
@@ -86,6 +87,8 @@ const Home: React.FC = () => {
           <PrintByProduct handleClose={handleOrderClose} order={toPrint} />
         ) : restaurant?.configs.print_only_shipment ? (
           <PrintOnlyShipment order={toPrint} handleClose={handleOrderClose} />
+        ) : toPrint.board_movement_id ? (
+          <BoardPrint handleClose={handleOrderClose} order={toPrint} />
         ) : (
           <Print handleClose={handleOrderClose} order={toPrint} />
         )

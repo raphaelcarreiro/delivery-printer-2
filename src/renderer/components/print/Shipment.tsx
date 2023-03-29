@@ -146,18 +146,14 @@ const Shipment: React.FC<PrintProps> = ({ handleClose, order }) => {
 
           {order.shipment.shipment_method === 'customer_collect' && !order.shipment.scheduled_at && (
             <PrintTypography gutterBottom bold>
-              **Cliente retirará**
+              CLIENTE RETIRARÁ
             </PrintTypography>
           )}
 
           {order.shipment.scheduled_at && (
             <PrintTypography gutterBottom bold>
-              **Cliente retirará ás {order.shipment.formattedScheduledAt}**
+              RETIRADA ÀS {order.shipment.formattedScheduledAt}
             </PrintTypography>
-          )}
-
-          {order.board_movement && (
-            <PrintTypography bold>**Mesa {order.board_movement?.board?.number}**</PrintTypography>
           )}
 
           <div className={classes.customerData}>
@@ -224,9 +220,7 @@ const Shipment: React.FC<PrintProps> = ({ handleClose, order }) => {
             <div>
               <PrintTypography>Pagamento</PrintTypography>
             </div>
-            <div>
-              <PrintTypography>{order.payment_method.method}</PrintTypography>
-            </div>
+            <div>{order.payment_method.mode === 'online' ? `Online` : order.payment_method.method}</div>
             {order.discount > 0 && (
               <>
                 <div>
@@ -264,7 +258,7 @@ const Shipment: React.FC<PrintProps> = ({ handleClose, order }) => {
               </>
             )}
             <div>
-              <PrintTypography>Total a pagar</PrintTypography>
+              <PrintTypography>{order.payment_method.mode === 'online' ? 'Total' : 'Total a pagar'}</PrintTypography>
             </div>
             <div>
               <PrintTypography fontSize={1.2} bold>

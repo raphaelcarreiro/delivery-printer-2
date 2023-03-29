@@ -63,6 +63,7 @@ const useStyles = makeStyles<Theme, UseStylesProps>({
   additionalInfoContainer: {
     display: 'flex',
     flexWrap: 'wrap',
+    columnGap: 5,
   },
 });
 
@@ -194,15 +195,11 @@ const Print: React.FC<PrintProps> = ({ handleClose, order }) => {
             {order.shipment.shipment_method === 'delivery' && <Address shipment={order.shipment} />}
 
             {order.shipment.shipment_method === 'customer_collect' && !order.shipment.scheduled_at && (
-              <PrintTypography bold>**Cliente retirará**</PrintTypography>
+              <PrintTypography bold>CLIENTE RETIRARÁ</PrintTypography>
             )}
 
             {order.shipment.scheduled_at && (
-              <PrintTypography>**Cliente retirará ás {order.shipment.formattedScheduledAt}**</PrintTypography>
-            )}
-
-            {order.board_movement && (
-              <PrintTypography bold>**Mesa {order.board_movement?.board?.number}**</PrintTypography>
+              <PrintTypography bold>RETIRADA ÀS {order.shipment.formattedScheduledAt}</PrintTypography>
             )}
 
             <table className={classes.headerProducts}>

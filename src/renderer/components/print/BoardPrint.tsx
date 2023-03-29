@@ -11,18 +11,16 @@ import PrintTypography from '../print-typography/PrintTypography';
 interface UseStylesProps {
   fontSize: number;
   noMargin: boolean;
-  maxWidth: number;
 }
 
 const useStyles = makeStyles<Theme, UseStylesProps>({
   container: props => ({
-    maxWidth: `${props.maxWidth}mm`,
+    maxWidth: '80mm',
     width: '100%',
-    minHeight: 300,
-    padding: 15,
-    fontSize: props.fontSize,
+    padding: '15px 15px 30px 15px',
     backgroundColor: '#faebd7',
     border: '2px dashed #ccc',
+    fontSize: props.fontSize,
     '@media print': {
       '&': {
         backgroundColor: 'transparent',
@@ -32,63 +30,9 @@ const useStyles = makeStyles<Theme, UseStylesProps>({
       },
     },
   }),
-  annotation: {
-    marginLeft: 10,
-  },
   products: {
-    marginBottom: 15,
-    padding: '5px 0 0',
+    padding: '7px 0 0',
     borderTop: '1px dashed #333',
-  },
-  loading: {
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  headerProducts: {
-    marginTop: 7,
-  },
-  productName: {
-    textTransform: 'uppercase',
-    fontSize: 16,
-    fontWeight: 600,
-  },
-  product: {
-    width: '100%',
-    paddingBottom: 10,
-  },
-  productAmount: {
-    minWidth: 25,
-    display: 'flex',
-    paddingTop: 0,
-  },
-  customerData: {
-    display: 'grid',
-    gridTemplateColumns: '75px 1fr',
-    marginBottom: 2,
-    columnGap: 7,
-  },
-  title: {
-    fontWeight: 600,
-  },
-  date: {
-    marginBottom: 10,
-  },
-  complementCategory: {
-    display: 'grid',
-    gridTemplateColumns: '0.5fr 1fr',
-  },
-  totals: {
-    display: 'grid',
-    gridTemplateColumns: '1.5fr 1fr',
-    rowGap: '4px',
-    '& div': {
-      display: 'flex',
-      alignItems: 'center',
-    },
-  },
-  developer: {
-    marginTop: 15,
   },
   complement: {
     marginLeft: 6,
@@ -99,31 +43,49 @@ const useStyles = makeStyles<Theme, UseStylesProps>({
   ingredient: {
     marginRight: 6,
   },
+  headerProducts: {
+    marginTop: 7,
+  },
+  product: {
+    width: '100%',
+    paddingBottom: 10,
+  },
+  productAmount: {
+    minWidth: 25,
+    paddingBottom: 10,
+    display: 'flex',
+    paddingTop: 0,
+  },
+  complementCategory: {
+    display: 'grid',
+    gridTemplateColumns: '0.5fr 1fr',
+  },
   additionalInfoContainer: {
     display: 'flex',
     flexWrap: 'wrap',
+    columnGap: 5,
   },
 });
 
-interface PrintProps {
+interface BoardPrintProps {
   handleClose(): void;
   order: OrderData;
 }
 
-const PrintOnlyShipment: React.FC<PrintProps> = ({ handleClose, order }) => {
+const BoardPrint: React.FC<BoardPrintProps> = ({ handleClose, order }) => {
   const restaurant = useSelector(state => state.restaurant);
 
   const classes = useStyles({
     fontSize: restaurant?.printer_settings?.font_size || 14,
     noMargin: !!restaurant?.printer_settings?.no_margin,
-    maxWidth: restaurant?.printer_settings?.max_width || 80,
   });
+
   const [printers, setPrinters] = useState<PrinterData[]>([]);
   const [toPrint, setToPrint] = useState<PrinterData[]>([]);
   const [printedQuantity, setPrintedQuantity] = useState(0);
 
   const copies = useMemo(() => {
-    return restaurant?.printer_settings.shipment_template_copies || 1;
+    return restaurant?.printer_settings.production_template_copies || 1;
   }, [restaurant]);
 
   // close if there is not printer in product
@@ -181,6 +143,7 @@ const PrintOnlyShipment: React.FC<PrintProps> = ({ handleClose, order }) => {
       }
 
       setToPrint([tp]);
+      setPrintedQuantity(0);
     }
   }, [printers, handleClose, order]);
 
@@ -217,49 +180,35 @@ const PrintOnlyShipment: React.FC<PrintProps> = ({ handleClose, order }) => {
             handleClose();
           });
       });
-  }, [toPrint, handleClose, printedQuantity, copies]);
+  }, [toPrint, handleClose, copies, printedQuantity]);
 
   return (
     <>
       {toPrint.length > 0 &&
         toPrint.map(printer => (
-          <div key={printer.id} className={classes.container}>
+          <div className={classes.container} key={printer.id}>
+            <PrintTypography gutterBottom fontSize={1.2} bold>
+              *** MESA {order.board_movement?.board?.number} ***
+            </PrintTypography>
+
             <PrintTypography fontSize={1.2} bold gutterBottom>
               PEDIDO {order.formattedSequence}
             </PrintTypography>
-            <PrintTypography gutterBottom>{order.formattedDate}</PrintTypography>
+
+            <PrintTypography>{order.formattedDate}</PrintTypography>
+
+            <PrintTypography gutterBottom>{order.customer.name}</PrintTypography>
+
+            {order.shipment.shipment_method === 'delivery' && <Address shipment={order.shipment} />}
+
             {order.shipment.shipment_method === 'customer_collect' && !order.shipment.scheduled_at && (
-              <PrintTypography gutterBottom bold>
-                CLIENTE RETIRARÁ
-              </PrintTypography>
+              <PrintTypography bold>**Cliente retirará**</PrintTypography>
             )}
 
             {order.shipment.scheduled_at && (
-              <PrintTypography gutterBottom bold>
-                RETIRADA ÀS {order.shipment.formattedScheduledAt}
-              </PrintTypography>
+              <PrintTypography>**Cliente retirará ás {order.shipment.formattedScheduledAt}**</PrintTypography>
             )}
 
-            {order.board_movement && (
-              <PrintTypography bold>**Mesa {order.board_movement?.board?.number}**</PrintTypography>
-            )}
-
-            <div className={classes.customerData}>
-              <PrintTypography>Cliente</PrintTypography>
-              <PrintTypography>{order.customer.name}</PrintTypography>
-            </div>
-            <div className={classes.customerData}>
-              <PrintTypography>Telefone</PrintTypography>
-              <PrintTypography>{order.customer.phone}</PrintTypography>
-            </div>
-            {order.shipment.shipment_method === 'delivery' && (
-              <div className={classes.customerData}>
-                <PrintTypography>Endereço</PrintTypography>
-                <div>
-                  <Address shipment={order.shipment} />
-                </div>
-              </div>
-            )}
             <table className={classes.headerProducts}>
               <tbody>
                 <tr>
@@ -275,14 +224,14 @@ const PrintOnlyShipment: React.FC<PrintProps> = ({ handleClose, order }) => {
             <div className={classes.products}>
               <table>
                 <tbody>
-                  {order.products.map(product => (
+                  {printer.order.products.map(product => (
                     <tr key={product.id}>
                       <td className={classes.productAmount}>
                         <PrintTypography>{product.amount}x</PrintTypography>
                       </td>
                       <td className={classes.product}>
                         <PrintTypography upperCase bold>
-                          {product.name} - {product.formattedFinalPrice}
+                          {product.name}
                         </PrintTypography>
                         {product.annotation && (
                           <PrintTypography fontSize={0.8}>Obs: {product.annotation}</PrintTypography>
@@ -292,7 +241,7 @@ const PrintOnlyShipment: React.FC<PrintProps> = ({ handleClose, order }) => {
                             <>
                               {product.additional.map(additional => (
                                 <PrintTypography display="inline" className={classes.additional} key={additional.id}>
-                                  {`c/ ${additional.amount}x ${additional.name}`}
+                                  {`c/ ${additional.amount}x ${additional.name} `}
                                 </PrintTypography>
                               ))}
                             </>
@@ -301,7 +250,7 @@ const PrintOnlyShipment: React.FC<PrintProps> = ({ handleClose, order }) => {
                             <>
                               {product.ingredients.map(ingredient => (
                                 <PrintTypography display="inline" className={classes.ingredient} key={ingredient.id}>
-                                  {`s/ ${ingredient.name}`}
+                                  {`s/ ${ingredient.name} `}
                                 </PrintTypography>
                               ))}
                             </>
@@ -327,83 +276,11 @@ const PrintOnlyShipment: React.FC<PrintProps> = ({ handleClose, order }) => {
                 </tbody>
               </table>
             </div>
-            <div className={classes.totals}>
-              <div>
-                <PrintTypography>Pagamento</PrintTypography>
-              </div>
-              <div>
-                <PrintTypography>
-                  {order.payment_method.mode === 'online' ? `Online` : order.payment_method.method}
-                </PrintTypography>
-              </div>
-              {order.discount > 0 && (
-                <>
-                  <div>
-                    <PrintTypography>Desconto</PrintTypography>
-                  </div>
-                  <div>
-                    <PrintTypography>{order.formattedDiscount}</PrintTypography>
-                  </div>
-                </>
-              )}
-              {order.tax > 0 && (
-                <>
-                  <div>
-                    <PrintTypography>Taxa de entrega</PrintTypography>
-                  </div>
-                  <div>
-                    <PrintTypography>{order.formattedTax}</PrintTypography>
-                  </div>
-                </>
-              )}
-              {order.change > 0 && (
-                <>
-                  <div>
-                    <PrintTypography>Troco para</PrintTypography>
-                  </div>
-                  <div>
-                    <PrintTypography>{order.formattedChangeTo}</PrintTypography>
-                  </div>
-                  <div>
-                    <PrintTypography>Troco</PrintTypography>
-                  </div>
-                  <div>
-                    <PrintTypography>{order.formattedChange}</PrintTypography>
-                  </div>
-                </>
-              )}
-              <div>
-                <PrintTypography>{order.payment_method.mode ? 'Total' : 'Total a pagar'}</PrintTypography>
-              </div>
-              <div>
-                <PrintTypography fontSize={1.2} bold>
-                  {order.formattedTotal}
-                </PrintTypography>
-              </div>
-              {order.deliverers.length > 0 && (
-                <>
-                  {order.deliverers.map(deliverer => (
-                    <Fragment key={deliverer.id}>
-                      <div>
-                        <PrintTypography>Entregador</PrintTypography>
-                      </div>
-                      <div>
-                        <PrintTypography>{deliverer.name}</PrintTypography>
-                      </div>
-                    </Fragment>
-                  ))}
-                </>
-              )}
-            </div>
-            <div className={classes.developer}>
-              <PrintTypography fontSize={0.9} align="center">
-                www.sgrande.delivery
-              </PrintTypography>
-            </div>
+            <PrintTypography align="center">.</PrintTypography>
           </div>
         ))}
     </>
   );
 };
 
-export default PrintOnlyShipment;
+export default BoardPrint;

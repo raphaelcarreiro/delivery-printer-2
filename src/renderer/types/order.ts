@@ -81,6 +81,7 @@ interface Customer {
 interface PaymentMethod {
   id: number;
   method: string;
+  mode: 'online' | 'offline';
 }
 
 interface Deliverer {

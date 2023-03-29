@@ -6,7 +6,7 @@ import { OrderData } from 'renderer/types/order';
 
 export function useFormarOrder(): (order: OrderData) => OrderData {
   function formatId(id: number) {
-    return `#${`00000${id}`.slice(-6)}`;
+    return `#${`00${id}`.slice(-6)}`;
   }
 
   return useCallback((order: OrderData) => {
