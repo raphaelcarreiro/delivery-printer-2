@@ -14,6 +14,7 @@ interface UseStylesProps {
 
 const useStyles = makeStyles<Theme, UseStylesProps>({
   container: props => ({
+    width: '100%',
     maxWidth: '80mm',
     minHeight: 300,
     padding: 15,
@@ -25,7 +26,7 @@ const useStyles = makeStyles<Theme, UseStylesProps>({
         backgroundColor: 'transparent',
         border: 'none',
         padding: props.noMargin ? '0 0 0 0' : '0 0 0 10px',
-        marginRight: 30,
+        marginRight: 0,
       },
     },
   }),

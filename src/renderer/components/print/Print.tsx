@@ -16,6 +16,7 @@ interface UseStylesProps {
 const useStyles = makeStyles<Theme, UseStylesProps>({
   container: props => ({
     maxWidth: '80mm',
+    width: '100%',
     padding: '15px 15px 30px 15px',
     backgroundColor: '#faebd7',
     border: '2px dashed #ccc',
@@ -25,7 +26,7 @@ const useStyles = makeStyles<Theme, UseStylesProps>({
         backgroundColor: 'transparent',
         border: 'none',
         padding: props.noMargin ? '0 0 0 0' : '0 0 0 10px',
-        marginRight: 30,
+        marginRight: 0,
       },
     },
   }),
@@ -236,7 +237,7 @@ const Print: React.FC<PrintProps> = ({ handleClose, order }) => {
                             <>
                               {product.additional.map(additional => (
                                 <PrintTypography display="inline" className={classes.additional} key={additional.id}>
-                                  {`c/ ${additional.amount}x ${additional.name}`}
+                                  {`c/ ${additional.amount}x ${additional.name} `}
                                 </PrintTypography>
                               ))}
                             </>
@@ -245,7 +246,7 @@ const Print: React.FC<PrintProps> = ({ handleClose, order }) => {
                             <>
                               {product.ingredients.map(ingredient => (
                                 <PrintTypography display="inline" className={classes.ingredient} key={ingredient.id}>
-                                  {`s/ ${ingredient.name}`}
+                                  {`s/ ${ingredient.name} `}
                                 </PrintTypography>
                               ))}
                             </>
