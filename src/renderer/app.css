@@ -20,6 +20,16 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+#root {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+form {
+  width: 100%;
+}
+
 a,
 a:hover {
   text-decoration: none;
@@ -49,6 +59,34 @@ p {
 @page {
   margin: 0;
   size: 80mm auto;
+}
+
+.zoom-animation {
+  animation-name: zoom;
+  animation-duration: 0.3s;
+  animation-iteration-count: 1;
+  animation-timing-function: cubic-bezier(0.1, 0.82, 0.25, 1);
+}
+
+@keyframes placeHolderShimmer {
+  0% {
+    background-position: -468px 0;
+  }
+  100% {
+    background-position: 468px 0;
+  }
+}
+
+.animated-background {
+  animation-duration: 1s;
+  animation-fill-mode: forwards;
+  animation-iteration-count: infinite;
+  animation-name: placeHolderShimmer;
+  animation-timing-function: linear;
+  background: #f6f7f8;
+  background: linear-gradient(to right, #eee 8%, #ddd 18%, #eee 33%);
+  background-size: 800px 104px;
+  position: relative;
 }
 
 @media (min-width: 1200px) {
