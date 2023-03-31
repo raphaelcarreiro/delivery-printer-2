@@ -19,7 +19,7 @@ const electronHandler = {
       ipcRenderer.once(channel, (_event, ...args) => func(...args));
     },
   },
-  print: (deviceName?: string): Promise<boolean> => ipcRenderer.invoke('print'),
+  print: (deviceName?: string): Promise<boolean> => ipcRenderer.invoke('print', deviceName),
 };
 
 contextBridge.exposeInMainWorld('electron', electronHandler);
