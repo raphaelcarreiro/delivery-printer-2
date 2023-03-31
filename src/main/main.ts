@@ -110,11 +110,11 @@ const createWindow = async () => {
   new AppUpdater();
 };
 
-ipcMain.handle('print', (_, deviceName?: string) => {
+ipcMain.handle('print', (event, deviceName?: string) => {
   return new Promise((resolve, reject) => {
     mainWindow?.webContents.print(
       {
-        deviceName: deviceName || undefined,
+        deviceName,
         color: false,
         collate: false,
         copies: 1,
