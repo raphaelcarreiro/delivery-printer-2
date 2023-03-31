@@ -65,6 +65,12 @@ const useStyles = makeStyles<Theme, UseStylesProps>({
     flexWrap: 'wrap',
     columnGap: 5,
   },
+  header: {
+    textAlign: 'center',
+    borderBottom: '1px dashed #000',
+    paddingBottom: 10,
+    marginBottom: 10,
+  },
 });
 
 interface BoardPrintProps {
@@ -187,11 +193,13 @@ const BoardPrint: React.FC<BoardPrintProps> = ({ handleClose, order }) => {
       {toPrint.length > 0 &&
         toPrint.map(printer => (
           <div className={classes.container} key={printer.id}>
-            <PrintTypography gutterBottom fontSize={1.2} bold>
-              *** MESA {order.board_movement?.board?.number} ***
-            </PrintTypography>
+            <div className={classes.header}>
+              <PrintTypography fontSize={1.2} bold>
+                MESA {order.board_movement?.board?.number}
+              </PrintTypography>
+            </div>
 
-            <PrintTypography fontSize={1.2} bold gutterBottom>
+            <PrintTypography bold gutterBottom>
               PEDIDO {order.formattedSequence}
             </PrintTypography>
 

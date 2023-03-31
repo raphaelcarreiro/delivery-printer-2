@@ -6,6 +6,7 @@ import { Theme } from '@material-ui/core';
 import Complements from './Complements';
 import Address from './Address';
 import PrintTypography from '../print-typography/PrintTypography';
+import Header from './Header';
 
 interface UseStylesProps {
   fontSize: number;
@@ -89,6 +90,12 @@ const useStyles = makeStyles<Theme, UseStylesProps>({
   developer: {
     marginTop: 15,
   },
+  header: {
+    textAlign: 'center',
+    borderBottom: '1px dashed #000',
+    paddingBottom: 10,
+    marginBottom: 10,
+  },
 });
 
 interface PrintProps {
@@ -139,22 +146,9 @@ const Shipment: React.FC<PrintProps> = ({ handleClose, order }) => {
     <>
       {toPrint && !toPrint.printed && (
         <div className={classes.container}>
-          <PrintTypography fontSize={1.2} bold gutterBottom>
-            PEDIDO {order.formattedSequence}
-          </PrintTypography>
+          <Header formattedSequence={order.formattedSequence} shipment={order.shipment} />
+
           <PrintTypography gutterBottom>{order.formattedDate}</PrintTypography>
-
-          {order.shipment.shipment_method === 'customer_collect' && !order.shipment.scheduled_at && (
-            <PrintTypography gutterBottom bold>
-              CLIENTE RETIRARÁ
-            </PrintTypography>
-          )}
-
-          {order.shipment.scheduled_at && (
-            <PrintTypography gutterBottom bold>
-              RETIRADA ÀS {order.shipment.formattedScheduledAt}
-            </PrintTypography>
-          )}
 
           <div className={classes.customerData}>
             <PrintTypography noWrap>Cliente</PrintTypography>

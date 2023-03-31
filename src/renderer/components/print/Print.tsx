@@ -5,8 +5,9 @@ import { api } from 'renderer/services/api';
 import { Theme } from '@material-ui/core';
 import { useSelector } from 'renderer/store/selector';
 import Complements from './Complements';
-import Address from './Address';
 import PrintTypography from '../print-typography/PrintTypography';
+import Header from './Header';
+import Address from './Address';
 
 interface UseStylesProps {
   fontSize: number;
@@ -64,6 +65,12 @@ const useStyles = makeStyles<Theme, UseStylesProps>({
     display: 'flex',
     flexWrap: 'wrap',
     columnGap: 5,
+  },
+  header: {
+    textAlign: 'center',
+    borderBottom: '1px dashed #000',
+    paddingBottom: 10,
+    marginBottom: 10,
   },
 });
 
@@ -187,20 +194,12 @@ const Print: React.FC<PrintProps> = ({ handleClose, order }) => {
       {toPrint.length > 0 &&
         toPrint.map(printer => (
           <div className={classes.container} key={printer.id}>
-            <PrintTypography fontSize={1.2} bold gutterBottom>
-              PEDIDO {order.formattedSequence}
-            </PrintTypography>
+            <Header formattedSequence={order.formattedSequence} shipment={order.shipment} />
+
             <PrintTypography>{order.formattedDate}</PrintTypography>
             <PrintTypography gutterBottom>{order.customer.name}</PrintTypography>
+
             {order.shipment.shipment_method === 'delivery' && <Address shipment={order.shipment} />}
-
-            {order.shipment.shipment_method === 'customer_collect' && !order.shipment.scheduled_at && (
-              <PrintTypography bold>CLIENTE RETIRARÁ</PrintTypography>
-            )}
-
-            {order.shipment.scheduled_at && (
-              <PrintTypography bold>RETIRADA ÀS {order.shipment.formattedScheduledAt}</PrintTypography>
-            )}
 
             <table className={classes.headerProducts}>
               <tbody>

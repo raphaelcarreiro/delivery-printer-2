@@ -7,6 +7,7 @@ import { useSelector } from 'renderer/store/selector';
 import Complements from './Complements';
 import Address from './Address';
 import PrintTypography from '../print-typography/PrintTypography';
+import Header from './Header';
 
 interface UseStylesProps {
   fontSize: number;
@@ -224,25 +225,7 @@ const PrintOnlyShipment: React.FC<PrintProps> = ({ handleClose, order }) => {
       {toPrint.length > 0 &&
         toPrint.map(printer => (
           <div key={printer.id} className={classes.container}>
-            <PrintTypography fontSize={1.2} bold gutterBottom>
-              PEDIDO {order.formattedSequence}
-            </PrintTypography>
-            <PrintTypography gutterBottom>{order.formattedDate}</PrintTypography>
-            {order.shipment.shipment_method === 'customer_collect' && !order.shipment.scheduled_at && (
-              <PrintTypography gutterBottom bold>
-                CLIENTE RETIRARÁ
-              </PrintTypography>
-            )}
-
-            {order.shipment.scheduled_at && (
-              <PrintTypography gutterBottom bold>
-                RETIRADA ÀS {order.shipment.formattedScheduledAt}
-              </PrintTypography>
-            )}
-
-            {order.board_movement && (
-              <PrintTypography bold>**Mesa {order.board_movement?.board?.number}**</PrintTypography>
-            )}
+            <Header formattedSequence={order.formattedSequence} shipment={order.shipment} />
 
             <div className={classes.customerData}>
               <PrintTypography>Cliente</PrintTypography>
