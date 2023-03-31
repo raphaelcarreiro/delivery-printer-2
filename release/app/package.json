@@ -1,6 +1,6 @@
 {
   "name": "sgrande-delivery-printer-2",
-  "version": "2.0.7",
+  "version": "2.0.8",
   "description": "SGrande Delivery Printer 2 - Impressão automática dos pedidos",
   "license": "MIT",
   "main": "./dist/main/main.js",
