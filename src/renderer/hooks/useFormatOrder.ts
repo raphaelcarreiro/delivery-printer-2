@@ -35,7 +35,7 @@ export function useFormarOrder(): (order: OrderData) => OrderData {
       shipment: {
         ...order.shipment,
         formattedScheduledAt: order.shipment.scheduled_at
-          ? format(parseISO(order.shipment.scheduled_at), 'dd/MM/yy p', { locale: ptBR })
+          ? format(parseISO(order.shipment.scheduled_at), 'p', { locale: ptBR })
           : null,
       },
     };
