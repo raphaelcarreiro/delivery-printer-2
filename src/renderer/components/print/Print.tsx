@@ -233,7 +233,7 @@ const Print: React.FC<PrintProps> = ({ handleClose, order }) => {
                             <>
                               {product.additional.map(additional => (
                                 <PrintTypography display="inline" className={classes.additional} key={additional.id}>
-                                  {`c/ ${additional.amount}x ${additional.name} `}
+                                  {`${product.amount} c/ ${additional.amount}x ${additional.name} `}
                                 </PrintTypography>
                               ))}
                             </>
