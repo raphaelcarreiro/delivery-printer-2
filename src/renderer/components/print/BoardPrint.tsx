@@ -249,7 +249,7 @@ const BoardPrint: React.FC<BoardPrintProps> = ({ handleClose, order }) => {
                             <>
                               {product.additional.map(additional => (
                                 <PrintTypography display="inline" className={classes.additional} key={additional.id}>
-                                  {`c/ ${additional.amount}x ${additional.name} `}
+                                  {`${product.amount} c/ ${additional.amount}x ${additional.name} `}
                                 </PrintTypography>
                               ))}
                             </>
@@ -283,6 +283,7 @@ const BoardPrint: React.FC<BoardPrintProps> = ({ handleClose, order }) => {
                   ))}
                 </tbody>
               </table>
+              <PrintTypography>Emitido por {order.board_movement?.admin_user.name}</PrintTypography>
             </div>
             <PrintTypography align="center">.</PrintTypography>
           </div>
