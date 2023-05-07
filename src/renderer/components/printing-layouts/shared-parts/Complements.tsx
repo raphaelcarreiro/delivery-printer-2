@@ -1,7 +1,7 @@
 import React from 'react';
 import { makeStyles } from '@material-ui/styles';
 import { ComplementCategory } from 'renderer/types/order';
-import PrintTypography from '../../base/print-typography/PrintTypography';
+import PrintTypography from 'renderer/base/print-typography/PrintTypography';
 
 const useStyles = makeStyles({
   ingredient: {
@@ -9,11 +9,11 @@ const useStyles = makeStyles({
   },
 });
 
-interface OrderProductComplementProps {
+interface ComplementProps {
   complementCategory: ComplementCategory;
 }
 
-const OrderProductComplements: React.FC<OrderProductComplementProps> = ({ complementCategory }) => {
+const Complements: React.FC<ComplementProps> = ({ complementCategory }) => {
   const classes = useStyles();
 
   return (
@@ -49,4 +49,4 @@ const OrderProductComplements: React.FC<OrderProductComplementProps> = ({ comple
   );
 };
 
-export default OrderProductComplements;
+export default Complements;

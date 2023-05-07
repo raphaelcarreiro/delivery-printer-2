@@ -3,10 +3,10 @@ import { makeStyles } from '@material-ui/styles';
 import { OrderData } from 'renderer/types/order';
 import { useSelector } from 'renderer/store/selector';
 import { Theme } from '@material-ui/core';
-import Complements from './Complements';
-import Address from './Address';
 import PrintTypography from '../../base/print-typography/PrintTypography';
-import Header from './Header';
+import Header from './shared-parts/Header';
+import Address from './shared-parts/Address';
+import ComplementCategories from './shared-parts/ComplementCategories';
 
 interface UseStylesProps {
   fontSize: number;
@@ -98,12 +98,12 @@ const useStyles = makeStyles<Theme, UseStylesProps>({
   },
 });
 
-interface PrintProps {
+interface DispatchedOrderProps {
   handleClose(): void;
   order: OrderData;
 }
 
-const Shipment: React.FC<PrintProps> = ({ handleClose, order }) => {
+const DispatchedOrder: React.FC<DispatchedOrderProps> = ({ handleClose, order }) => {
   const restaurant = useSelector(state => state.restaurant);
 
   const classes = useStyles({
@@ -190,20 +190,8 @@ const Shipment: React.FC<PrintProps> = ({ handleClose, order }) => {
                       <PrintTypography upperCase bold>
                         {product.name} - {product.formattedFinalPrice}
                       </PrintTypography>
-                      {product.complement_categories.length > 0 && (
-                        <>
-                          {product.complement_categories.map(category => (
-                            <Fragment key={category.id}>
-                              {category.complements.length > 0 && (
-                                <div className={classes.complementCategory}>
-                                  <PrintTypography italic>{category.print_name || category.name}</PrintTypography>
-                                  <Complements complementCategory={category} />
-                                </div>
-                              )}
-                            </Fragment>
-                          ))}
-                        </>
-                      )}
+
+                      <ComplementCategories categories={product.complement_categories} />
                     </td>
                   </tr>
                 ))}
@@ -285,4 +273,4 @@ const Shipment: React.FC<PrintProps> = ({ handleClose, order }) => {
   );
 };
 
-export default Shipment;
+export default DispatchedOrder;

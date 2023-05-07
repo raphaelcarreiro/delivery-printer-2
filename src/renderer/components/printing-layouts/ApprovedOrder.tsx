@@ -5,11 +5,11 @@ import { api } from 'renderer/services/api';
 import { Theme } from '@material-ui/core';
 import { useSelector } from 'renderer/store/selector';
 import PrintTypography from '../../base/print-typography/PrintTypography';
-import Header from './Header';
-import Address from './Address';
-import Additional from './Additional';
-import Ingredients from './Ingredients';
-import ComplementCategories from './ComplementCategories';
+import Additional from './shared-parts/Additional';
+import Header from './shared-parts/Header';
+import Address from './shared-parts/Address';
+import Ingredients from './shared-parts/Ingredients';
+import ComplementCategories from './shared-parts/ComplementCategories';
 
 interface UseStylesProps {
   fontSize: number;
@@ -63,12 +63,12 @@ const useStyles = makeStyles<Theme, UseStylesProps>({
   },
 });
 
-interface PrintProps {
+interface ApprovedOrderProps {
   handleClose(): void;
   order: OrderData;
 }
 
-const Print: React.FC<PrintProps> = ({ handleClose, order }) => {
+const ApprovedOrder: React.FC<ApprovedOrderProps> = ({ handleClose, order }) => {
   const restaurant = useSelector(state => state.restaurant);
 
   const classes = useStyles({
@@ -239,4 +239,4 @@ const Print: React.FC<PrintProps> = ({ handleClose, order }) => {
   );
 };
 
-export default Print;
+export default ApprovedOrder;

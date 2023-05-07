@@ -1,8 +1,8 @@
-import React, { Fragment } from 'react';
+import React from 'react';
 import { makeStyles } from '@material-ui/core';
 import { Product } from 'renderer/types/order';
 import PrintTypography from 'renderer/base/print-typography/PrintTypography';
-import OrderProductComplements from '../Complements';
+import ComplementCategories from '../shared-parts/ComplementCategories';
 
 const styles = makeStyles({
   products: {
@@ -18,11 +18,6 @@ const styles = makeStyles({
     minWidth: 25,
     display: 'flex',
     paddingTop: 0,
-  },
-  complementCategory: {
-    display: 'grid',
-    gridTemplateColumns: '0.5fr 1fr',
-    alignItems: 'center',
   },
   headerProducts: {
     marginTop: 7,
@@ -63,20 +58,7 @@ const BoardBillingProducts: React.FC<BoardBillingProductsProps> = ({ products })
                   <PrintTypography upperCase bold>
                     {product.name} - {product.formattedFinalPrice}
                   </PrintTypography>
-                  {product.complement_categories.length > 0 && (
-                    <>
-                      {product.complement_categories.map(category => (
-                        <Fragment key={category.id}>
-                          {category.complements.length > 0 && (
-                            <div className={classes.complementCategory}>
-                              <PrintTypography italic>{category.print_name || category.name}</PrintTypography>
-                              <OrderProductComplements complementCategory={category} />
-                            </div>
-                          )}
-                        </Fragment>
-                      ))}
-                    </>
-                  )}
+                  <ComplementCategories categories={product.complement_categories} />
                 </td>
               </tr>
             ))}

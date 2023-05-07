@@ -1,19 +1,17 @@
-import React, { useEffect, useState, Fragment, useMemo } from 'react';
+import React, { useEffect, useState, Fragment } from 'react';
 import { makeStyles } from '@material-ui/styles';
-import { OrderData, PrinterData } from 'renderer/types/order';
+import { OrderData, ProductPrinterData } from 'renderer/types/order';
 import { api } from 'renderer/services/api';
 import { Theme } from '@material-ui/core';
 import { useSelector } from 'renderer/store/selector';
 import PrintTypography from '../../base/print-typography/PrintTypography';
-import Header from './Header';
-import Address from './Address';
-import Additional from './Additional';
-import Ingredients from './Ingredients';
-import ComplementCategories from './ComplementCategories';
+import Address from './shared-parts/Address';
+import Additional from './shared-parts/Additional';
+import Ingredients from './shared-parts/Ingredients';
+import ComplementCategories from './shared-parts/ComplementCategories';
 
 interface UseStylesProps {
   fontSize: number;
-  noMargin: boolean;
 }
 
 const useStyles = makeStyles<Theme, UseStylesProps>({
@@ -28,7 +26,7 @@ const useStyles = makeStyles<Theme, UseStylesProps>({
       '&': {
         backgroundColor: 'transparent',
         border: 'none',
-        padding: props.noMargin ? '0 0 0 0' : '0 0 0 10px',
+        padding: '0 0 0 10px',
         marginRight: 0,
       },
     },
@@ -53,36 +51,23 @@ const useStyles = makeStyles<Theme, UseStylesProps>({
   additionalInfoContainer: {
     display: 'flex',
     flexWrap: 'wrap',
-    columnGap: 5,
-  },
-  header: {
-    textAlign: 'center',
-    borderBottom: '1px dashed #000',
-    paddingBottom: 10,
-    marginBottom: 10,
   },
 });
 
-interface PrintProps {
+interface ApprovedOrderSplittedByProductProps {
   handleClose(): void;
   order: OrderData;
 }
 
-const Print: React.FC<PrintProps> = ({ handleClose, order }) => {
+const ApprovedOrderSplittedByProduct: React.FC<ApprovedOrderSplittedByProductProps> = ({ handleClose, order }) => {
   const restaurant = useSelector(state => state.restaurant);
 
   const classes = useStyles({
-    fontSize: restaurant?.printer_settings?.font_size || 14,
-    noMargin: !!restaurant?.printer_settings?.no_margin,
+    fontSize: restaurant?.printer_settings.font_size || 14,
   });
 
-  const [printers, setPrinters] = useState<PrinterData[]>([]);
-  const [toPrint, setToPrint] = useState<PrinterData[]>([]);
-  const [printedQuantity, setPrintedQuantity] = useState(0);
-
-  const copies = useMemo(() => {
-    return restaurant?.printer_settings.production_template_copies || 1;
-  }, [restaurant]);
+  const [products, setProducts] = useState<ProductPrinterData[]>([]);
+  const [toPrint, setToPrint] = useState<ProductPrinterData[]>([]);
 
   // close if there is not printer in product
   useEffect(() => {
@@ -92,28 +77,36 @@ const Print: React.FC<PrintProps> = ({ handleClose, order }) => {
 
   // get product printers
   useEffect(() => {
-    if (order) {
-      let productPrinters: PrinterData[] = [];
-      order.products.forEach(product => {
-        if (product.printer) {
-          if (!productPrinters.some(printer => printer.id === product.printer.id))
-            productPrinters.push(product.printer);
-        }
-      });
+    if (!order) return;
 
-      productPrinters = productPrinters.map(_printer => {
-        _printer.order = {
-          ...order,
-          products: order.products.filter(product => {
-            return product.printer && product.printer.id === _printer.id;
-          }),
-        };
-        _printer.printed = false;
-        return _printer;
-      });
+    let productsToPrint: ProductPrinterData[] = [];
+    order.products.forEach(product => {
+      if (product.printer) {
+        let i = 1;
+        do {
+          productsToPrint.push({
+            id: `${product.id}-${i}`,
+            productId: product.id,
+            name: product.printer.name,
+            order,
+            printed: false,
+            currentAmount: i,
+          });
+          i += 1;
+        } while (i <= product.amount);
+      }
+    });
 
-      setPrinters(productPrinters);
-    }
+    productsToPrint = productsToPrint.map(productToPrint => {
+      productToPrint.order = {
+        ...order,
+        products: order.products.filter(product => product.printer && product.id === productToPrint.productId),
+      };
+      productToPrint.printed = false;
+      return productToPrint;
+    });
+
+    setProducts(productsToPrint);
   }, [order]);
 
   useEffect(() => {
@@ -128,67 +121,80 @@ const Print: React.FC<PrintProps> = ({ handleClose, order }) => {
       }
     }
 
-    if (printers.length > 0) {
-      const tp = printers.find(p => !p.printed);
+    if (products.length > 0) {
+      const tp = products.find(p => !p.printed);
 
       // close if all order products had been printed
       if (!tp) {
-        const check = printers.every(p => p.printed);
+        const check = products.every(p => p.printed);
         if (check) setPrinted();
         return;
       }
 
       setToPrint([tp]);
-      setPrintedQuantity(0);
     }
-  }, [printers, handleClose, order]);
+  }, [products, handleClose, order]);
 
   // print
   useEffect(() => {
-    if (!toPrint.length) return;
-
-    const [printing] = toPrint;
-
-    if (printedQuantity === copies) {
-      setPrinters(oldPrinters =>
-        oldPrinters.map(p => {
-          if (p.id === printing.id) p.printed = true;
-          return p;
-        })
-      );
+    if (!toPrint.length) {
       return;
     }
+
+    const [printing] = toPrint;
 
     window.electron
       .print(printing.name)
       .then(() => {
-        setPrintedQuantity(state => state + 1);
+        setProducts(oldValue =>
+          oldValue.map(p => {
+            if (p.id === printing.id) p.printed = true;
+            return p;
+          })
+        );
       })
       .catch(err => {
         console.error(err);
         window.electron
           .print()
           .then(() => {
-            setPrintedQuantity(state => state + 1);
+            setProducts(oldValue =>
+              oldValue.map(p => {
+                if (p.id === printing.id) p.printed = true;
+                return p;
+              })
+            );
           })
           .catch(err => {
             console.error(err);
             handleClose();
           });
       });
-  }, [toPrint, handleClose, copies, printedQuantity]);
+  }, [toPrint, handleClose]);
 
   return (
     <>
       {toPrint.length > 0 &&
         toPrint.map(printer => (
           <div className={classes.container} key={printer.id}>
-            <Header formattedSequence={order.formattedSequence} shipment={order.shipment} />
-
+            <PrintTypography fontSize={1.2} bold gutterBottom>
+              PEDIDO {order.formattedSequence}
+            </PrintTypography>
             <PrintTypography>{order.formattedDate}</PrintTypography>
             <PrintTypography gutterBottom>{order.customer.name}</PrintTypography>
-
             {order.shipment.shipment_method === 'delivery' && <Address shipment={order.shipment} />}
+
+            {order.shipment.shipment_method === 'customer_collect' && !order.shipment.scheduled_at && (
+              <PrintTypography>**Cliente retirará**</PrintTypography>
+            )}
+
+            {order.shipment.scheduled_at && (
+              <PrintTypography>**Cliente retirará ás {order.shipment.formattedScheduledAt}**</PrintTypography>
+            )}
+
+            {order.board_movement && (
+              <PrintTypography bold>**Mesa {order.board_movement?.board?.number}**</PrintTypography>
+            )}
 
             <table className={classes.headerProducts}>
               <tbody>
@@ -210,7 +216,6 @@ const Print: React.FC<PrintProps> = ({ handleClose, order }) => {
                       <td className={classes.productAmount}>
                         <PrintTypography>{product.amount}x</PrintTypography>
                       </td>
-
                       <td className={classes.product}>
                         <PrintTypography upperCase bold>
                           {product.name}
@@ -239,4 +244,4 @@ const Print: React.FC<PrintProps> = ({ handleClose, order }) => {
   );
 };
 
-export default Print;
+export default ApprovedOrderSplittedByProduct;

@@ -5,11 +5,10 @@ import { api } from 'renderer/services/api';
 import { Theme } from '@material-ui/core';
 import { useSelector } from 'renderer/store/selector';
 import PrintTypography from '../../base/print-typography/PrintTypography';
-import Header from './Header';
-import Address from './Address';
-import Additional from './Additional';
-import Ingredients from './Ingredients';
-import ComplementCategories from './ComplementCategories';
+import Additional from './shared-parts/Additional';
+import Address from './shared-parts/Address';
+import Ingredients from './shared-parts/Ingredients';
+import ComplementCategories from './shared-parts/ComplementCategories';
 
 interface UseStylesProps {
   fontSize: number;
@@ -63,12 +62,12 @@ const useStyles = makeStyles<Theme, UseStylesProps>({
   },
 });
 
-interface PrintProps {
+interface ApprovedBoardOrderProps {
   handleClose(): void;
   order: OrderData;
 }
 
-const Print: React.FC<PrintProps> = ({ handleClose, order }) => {
+const ApprovedBoardOrder: React.FC<ApprovedBoardOrderProps> = ({ handleClose, order }) => {
   const restaurant = useSelector(state => state.restaurant);
 
   const classes = useStyles({
@@ -183,12 +182,29 @@ const Print: React.FC<PrintProps> = ({ handleClose, order }) => {
       {toPrint.length > 0 &&
         toPrint.map(printer => (
           <div className={classes.container} key={printer.id}>
-            <Header formattedSequence={order.formattedSequence} shipment={order.shipment} />
+            <div className={classes.header}>
+              <PrintTypography fontSize={1.2} bold>
+                MESA {order.board_movement?.board?.number}
+              </PrintTypography>
+            </div>
+
+            <PrintTypography bold gutterBottom>
+              PEDIDO {order.formattedSequence}
+            </PrintTypography>
 
             <PrintTypography>{order.formattedDate}</PrintTypography>
+
             <PrintTypography gutterBottom>{order.customer.name}</PrintTypography>
 
             {order.shipment.shipment_method === 'delivery' && <Address shipment={order.shipment} />}
+
+            {order.shipment.shipment_method === 'customer_collect' && !order.shipment.scheduled_at && (
+              <PrintTypography bold>**Cliente retirará**</PrintTypography>
+            )}
+
+            {order.shipment.scheduled_at && (
+              <PrintTypography>**Cliente retirará ás {order.shipment.formattedScheduledAt}**</PrintTypography>
+            )}
 
             <table className={classes.headerProducts}>
               <tbody>
@@ -239,4 +255,4 @@ const Print: React.FC<PrintProps> = ({ handleClose, order }) => {
   );
 };
 
-export default Print;
+export default ApprovedBoardOrder;

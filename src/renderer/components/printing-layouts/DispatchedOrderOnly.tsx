@@ -4,10 +4,12 @@ import { OrderData, PrinterData } from 'renderer/types/order';
 import { api } from 'renderer/services/api';
 import { Theme } from '@material-ui/core';
 import { useSelector } from 'renderer/store/selector';
-import Complements from './Complements';
-import Address from './Address';
 import PrintTypography from '../../base/print-typography/PrintTypography';
-import Header from './Header';
+import Header from './shared-parts/Header';
+import Address from './shared-parts/Address';
+import Additional from './shared-parts/Additional';
+import Ingredients from './shared-parts/Ingredients';
+import ComplementCategories from './shared-parts/ComplementCategories';
 
 interface UseStylesProps {
   fontSize: number;
@@ -106,12 +108,12 @@ const useStyles = makeStyles<Theme, UseStylesProps>({
   },
 });
 
-interface PrintProps {
+interface DispatchedOrderOnlyProps {
   handleClose(): void;
   order: OrderData;
 }
 
-const PrintOnlyShipment: React.FC<PrintProps> = ({ handleClose, order }) => {
+const DispatchedOrderOnly: React.FC<DispatchedOrderOnlyProps> = ({ handleClose, order }) => {
   const restaurant = useSelector(state => state.restaurant);
 
   const classes = useStyles({
@@ -270,40 +272,13 @@ const PrintOnlyShipment: React.FC<PrintProps> = ({ handleClose, order }) => {
                         {product.annotation && (
                           <PrintTypography fontSize={0.8}>Obs: {product.annotation}</PrintTypography>
                         )}
+
                         <div className={classes.additionalInfoContainer}>
-                          {product.additional.length > 0 && (
-                            <>
-                              {product.additional.map(additional => (
-                                <PrintTypography display="inline" className={classes.additional} key={additional.id}>
-                                  {`${product.amount} c/ ${additional.amount}x ${additional.name}`}
-                                </PrintTypography>
-                              ))}
-                            </>
-                          )}
-                          {product.ingredients.length > 0 && (
-                            <>
-                              {product.ingredients.map(ingredient => (
-                                <PrintTypography display="inline" className={classes.ingredient} key={ingredient.id}>
-                                  {`s/ ${ingredient.name}`}
-                                </PrintTypography>
-                              ))}
-                            </>
-                          )}
+                          <Additional additional={product.additional} />
+                          <Ingredients ingredients={product.ingredients} />
                         </div>
-                        {product.complement_categories.length > 0 && (
-                          <>
-                            {product.complement_categories.map(category => (
-                              <Fragment key={category.id}>
-                                {category.complements.length > 0 && (
-                                  <div className={classes.complementCategory}>
-                                    <PrintTypography italic>{category.print_name || category.name}</PrintTypography>
-                                    <Complements complementCategory={category} />
-                                  </div>
-                                )}
-                              </Fragment>
-                            ))}
-                          </>
-                        )}
+
+                        <ComplementCategories categories={product.complement_categories} />
                       </td>
                     </tr>
                   ))}
@@ -389,4 +364,4 @@ const PrintOnlyShipment: React.FC<PrintProps> = ({ handleClose, order }) => {
   );
 };
 
-export default PrintOnlyShipment;
+export default DispatchedOrderOnly;

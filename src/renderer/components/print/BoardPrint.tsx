@@ -6,7 +6,8 @@ import { Theme } from '@material-ui/core';
 import { useSelector } from 'renderer/store/selector';
 import Complements from './Complements';
 import Address from './Address';
-import PrintTypography from '../print-typography/PrintTypography';
+import PrintTypography from '../../base/print-typography/PrintTypography';
+import Additional from './Additional';
 
 interface UseStylesProps {
   fontSize: number;
@@ -245,15 +246,7 @@ const BoardPrint: React.FC<BoardPrintProps> = ({ handleClose, order }) => {
                           <PrintTypography fontSize={0.8}>Obs: {product.annotation}</PrintTypography>
                         )}
                         <div className={classes.additionalInfoContainer}>
-                          {product.additional.length > 0 && (
-                            <>
-                              {product.additional.map(additional => (
-                                <PrintTypography display="inline" className={classes.additional} key={additional.id}>
-                                  {`${product.amount} c/ ${additional.amount}x ${additional.name} `}
-                                </PrintTypography>
-                              ))}
-                            </>
-                          )}
+                          {product.additional.length > 0 && <Additional additional={product.additional} />}
                           {product.ingredients.length > 0 && (
                             <>
                               {product.ingredients.map(ingredient => (

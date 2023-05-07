@@ -6,7 +6,7 @@ import { Theme } from '@material-ui/core';
 import { useSelector } from 'renderer/store/selector';
 import Complements from './Complements';
 import Address from './Address';
-import PrintTypography from '../print-typography/PrintTypography';
+import PrintTypography from '../../base/print-typography/PrintTypography';
 
 interface UseStylesProps {
   fontSize: number;

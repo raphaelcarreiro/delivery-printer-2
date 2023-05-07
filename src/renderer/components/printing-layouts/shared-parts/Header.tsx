@@ -1,7 +1,7 @@
 import { makeStyles } from '@material-ui/core';
 import React, { FC } from 'react';
+import PrintTypography from 'renderer/base/print-typography/PrintTypography';
 import { Shipment } from 'renderer/types/order';
-import PrintTypography from '../../base/print-typography/PrintTypography';
 
 const useStyles = makeStyles({
   header: {

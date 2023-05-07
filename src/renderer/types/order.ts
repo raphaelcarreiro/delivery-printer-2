@@ -17,13 +17,13 @@ export interface ProductPrinterData {
   currentAmount: number;
 }
 
-interface Additional {
+export interface Additional {
   id: number;
   name: string;
   amount: number;
 }
 
-interface Ingredient {
+export interface Ingredient {
   id: number;
   name: string;
 }
