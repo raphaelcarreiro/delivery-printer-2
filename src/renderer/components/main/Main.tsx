@@ -13,6 +13,8 @@ import PrintOnlyShipment from '../print/PrintOnlyShipment';
 import Print from '../print/Print';
 import Shipment from '../print/Shipment';
 import BoardPrint from '../print/BoardPrint';
+import { BoardControlMovement } from 'renderer/types/boardControlMovement';
+import BoardBilling from '../print/board-billing/BoardBilling';
 
 const Home: React.FC = () => {
   const [orders, setOrders] = useState<OrderData[]>([]);
@@ -21,7 +23,8 @@ const Home: React.FC = () => {
   const restaurant = useSelector(state => state.restaurant);
   const auth = useAuth();
   const formatOrder = useFormarOrder();
-  const [socket, wsConnected] = useSocket(setOrders, setShipment);
+  const [boardMovement, setBoardMovement] = useState<BoardControlMovement | null>(null);
+  const [socket, wsConnected] = useSocket(setOrders, setShipment, setBoardMovement);
 
   useEffect(() => {
     async function getOrders() {
@@ -78,7 +81,9 @@ const Home: React.FC = () => {
     });
   }
 
-  if (auth.loading) return <InsideLoading />;
+  if (auth.loading) {
+    return <InsideLoading />;
+  }
 
   return (
     <>
@@ -94,6 +99,8 @@ const Home: React.FC = () => {
         )
       ) : shipment && !shipment.printed ? (
         <Shipment order={shipment} handleClose={handleShipmentClose} />
+      ) : boardMovement ? (
+        <BoardBilling movement={boardMovement} handleClose={() => setBoardMovement(null)} />
       ) : (
         <Status wsConnected={wsConnected} handleLogout={handleLogout} />
       )}

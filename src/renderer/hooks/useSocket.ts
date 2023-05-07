@@ -6,6 +6,7 @@ import { useSelector } from 'renderer/store/selector';
 import { useDispatch } from 'react-redux';
 import { OrderData } from 'renderer/types/order';
 import { setRestaurantIsOpen } from 'renderer/store/modules/restaurant/actions';
+import { BoardControlMovement } from 'renderer/types/boardControlMovement';
 
 const socket: Socket = io(constants.WS_BASE_URL);
 
@@ -13,7 +14,8 @@ type UseSocket = [Socket, boolean];
 
 export function useSocket(
   setOrders: Dispatch<SetStateAction<OrderData[]>>,
-  setShipment: Dispatch<SetStateAction<OrderData | null>>
+  setShipment: Dispatch<SetStateAction<OrderData | null>>,
+  setBoardMovement: Dispatch<SetStateAction<BoardControlMovement | null>>
 ): UseSocket {
   const formatOrder = useFormarOrder();
   const [connected, setConnected] = useState(socket.connected);
@@ -39,6 +41,12 @@ export function useSocket(
       setOrders(oldOrders => [...oldOrders, formattedOrder]);
     });
 
+    socket.on('print_board_billing', (movement: BoardControlMovement) => {
+      console.log(movement);
+
+      setBoardMovement(movement);
+    });
+
     socket.on('handleRestaurantState', (response: { isOpen: boolean }) => {
       dispatch(setRestaurantIsOpen(response.isOpen));
     });
@@ -48,8 +56,9 @@ export function useSocket(
       socket.off('printShipment');
       socket.off('printOrder');
       socket.off('stored');
+      socket.off('print_board_billing');
     };
-  }, [restaurant, dispatch, formatOrder, setOrders]);
+  }, [restaurant, dispatch, formatOrder, setOrders, setBoardMovement]);
 
   useEffect(() => {
     if (!restaurant?.configs.print_only_shipment) {

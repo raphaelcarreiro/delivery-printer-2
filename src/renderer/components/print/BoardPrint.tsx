@@ -283,7 +283,6 @@ const BoardPrint: React.FC<BoardPrintProps> = ({ handleClose, order }) => {
                   ))}
                 </tbody>
               </table>
-              <PrintTypography>Emitido por {order.board_movement?.admin_user.name}</PrintTypography>
             </div>
             <PrintTypography align="center">.</PrintTypography>
           </div>

@@ -45,7 +45,7 @@ interface Complement {
 type ComplementAdditional = Additional;
 type ComplementIngredient = Ingredient;
 
-interface Product {
+export interface Product {
   id: number;
   name: string;
   final_price: number;
