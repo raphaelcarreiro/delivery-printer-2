@@ -7,8 +7,9 @@ import { makeStyles } from '@material-ui/core';
 const styles = makeStyles({
   complementCategory: {
     display: 'grid',
-    gridTemplateColumns: '0.7fr 1fr',
-    gap: 10,
+    gridTemplateColumns: '80px 1fr',
+    gap: 5,
+    borderBottom: '1px dashed #000',
   },
 });
 
