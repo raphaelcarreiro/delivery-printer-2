@@ -14,7 +14,7 @@ interface AdditionalProps {
 }
 
 const amountMappings = {
-  1: '',
+  1: 'c/',
   2: 'c/ duplo',
   3: 'c/ triplo',
 };
@@ -23,7 +23,7 @@ const Additional: React.FC<AdditionalProps> = ({ additional }) => {
   const classes = styles();
 
   function getAddionalAmountText(item: AdditionalType) {
-    return amountMappings[item.amount] ?? `${item.amount}x`;
+    return amountMappings[item.amount] ?? `c/ ${item.amount}x`;
   }
 
   return (
@@ -32,8 +32,7 @@ const Additional: React.FC<AdditionalProps> = ({ additional }) => {
         <>
           {additional.map(additional => (
             <PrintTypography display="inline" className={classes.additional} key={additional.id}>
-              <strong></strong>
-              {`c/ ${getAddionalAmountText(additional)} ${additional.name}`}
+              {`${getAddionalAmountText(additional)} ${additional.name}`}
             </PrintTypography>
           ))}
         </>
