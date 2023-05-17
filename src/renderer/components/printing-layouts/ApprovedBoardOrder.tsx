@@ -50,7 +50,7 @@ const useStyles = makeStyles<Theme, UseStylesProps>({
     paddingTop: 0,
   },
   additionalInfoContainer: {
-    display: 'flex',
+    // display: 'flex',
     flexWrap: 'wrap',
     columnGap: 5,
   },

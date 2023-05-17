@@ -103,7 +103,7 @@ const useStyles = makeStyles<Theme, UseStylesProps>({
     marginRight: 6,
   },
   additionalInfoContainer: {
-    display: 'flex',
+    // display: 'flex',
     flexWrap: 'wrap',
   },
 });
