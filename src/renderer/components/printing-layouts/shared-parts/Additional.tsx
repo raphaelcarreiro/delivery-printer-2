@@ -26,15 +26,23 @@ const Additional: React.FC<AdditionalProps> = ({ additional }) => {
     return amountMappings[item.amount] ?? `c/ ${item.amount}x`;
   }
 
+  function getAdditionalText(additional: AdditionalType[]) {
+    return additional
+      .map(item => {
+        const amount = getAddionalAmountText(item);
+
+        return `${amount} ${item.name}`;
+      })
+      .join(' ');
+  }
+
   return (
     <>
       {additional.length > 0 && (
         <>
-          {additional.map(additional => (
-            <PrintTypography display="inline" className={classes.additional} key={additional.id}>
-              {`${getAddionalAmountText(additional)} ${additional.name}`}
-            </PrintTypography>
-          ))}
+          <PrintTypography display="inline" className={classes.additional}>
+            {getAdditionalText(additional) + ' '}
+          </PrintTypography>
         </>
       )}
     </>

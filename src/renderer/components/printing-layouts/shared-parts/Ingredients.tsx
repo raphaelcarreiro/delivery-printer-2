@@ -16,13 +16,17 @@ interface IngredientsProps {
 const Ingredients: React.FC<IngredientsProps> = ({ ingredients }) => {
   const classes = styles();
 
+  function getIngredientsText(ingredients: IngredientType[]) {
+    return ingredients.map(ingredient => `s/ ${ingredient.name}`).join(' ');
+  }
+
   return (
     <>
-      {ingredients.map(ingredient => (
-        <PrintTypography display="inline" className={classes.text} key={ingredient.id}>
-          {`s/ ${ingredient.name} `}
+      {ingredients.length > 0 && (
+        <PrintTypography display="inline" className={classes.text}>
+          {getIngredientsText(ingredients)}
         </PrintTypography>
-      ))}
+      )}
     </>
   );
 };

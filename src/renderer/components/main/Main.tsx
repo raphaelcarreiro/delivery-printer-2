@@ -90,10 +90,10 @@ const Home: React.FC = () => {
       {toPrint && !toPrint.printed ? (
         restaurant?.configs.print_by_product ? (
           <ApprovedOrderSplittedByProduct handleClose={handleOrderClose} order={toPrint} />
-        ) : restaurant?.configs.print_only_shipment ? (
-          <DispatchedOrderOnly order={toPrint} handleClose={handleOrderClose} />
         ) : toPrint.board_movement_id ? (
           <ApprovedBoardOrder handleClose={handleOrderClose} order={toPrint} />
+        ) : restaurant?.configs.print_only_shipment ? (
+          <DispatchedOrderOnly order={toPrint} handleClose={handleOrderClose} />
         ) : (
           <ApprovedOrder handleClose={handleOrderClose} order={toPrint} />
         )
