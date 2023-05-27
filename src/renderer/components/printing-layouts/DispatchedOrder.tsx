@@ -100,12 +100,12 @@ const useStyles = makeStyles<Theme, UseStylesProps>({
 
 interface DispatchedOrderProps {
   handleClose(): void;
-  order: OrderData;
+  data: OrderData;
 }
 
-const DispatchedOrder: React.FC<DispatchedOrderProps> = ({ handleClose, order }) => {
+const DispatchedOrder: React.FC<DispatchedOrderProps> = ({ handleClose, data }) => {
   const restaurant = useSelector(state => state.restaurant);
-
+  const order = useMemo(() => JSON.parse(JSON.stringify(data)), [data]);
   const classes = useStyles({
     fontSize: restaurant?.printer_settings?.font_size || 14,
     noMargin: !!restaurant?.printer_settings?.no_margin,

@@ -1,4 +1,4 @@
-import React, { useEffect, useState, Fragment, useMemo } from 'react';
+import React, { useEffect, useState, Fragment, useMemo, useCallback } from 'react';
 import { makeStyles } from '@material-ui/styles';
 import { OrderData, PrinterData } from 'renderer/types/order';
 import { api } from 'renderer/services/api';
@@ -110,12 +110,12 @@ const useStyles = makeStyles<Theme, UseStylesProps>({
 
 interface DispatchedOrderOnlyProps {
   handleClose(): void;
-  order: OrderData;
+  data: OrderData;
 }
 
-const DispatchedOrderOnly: React.FC<DispatchedOrderOnlyProps> = ({ handleClose, order }) => {
+const DispatchedOrderOnly: React.FC<DispatchedOrderOnlyProps> = ({ handleClose, data }) => {
   const restaurant = useSelector(state => state.restaurant);
-
+  const order = useMemo(() => JSON.parse(JSON.stringify(data)), [data]);
   const classes = useStyles({
     fontSize: restaurant?.printer_settings?.font_size || 14,
     noMargin: !!restaurant?.printer_settings?.no_margin,
@@ -129,11 +129,25 @@ const DispatchedOrderOnly: React.FC<DispatchedOrderOnlyProps> = ({ handleClose, 
     return restaurant?.printer_settings.shipment_template_copies || 1;
   }, [restaurant]);
 
+  const setOrderAsPrinted = useCallback(async () => {
+    try {
+      await api.post(`/orders/printed`, { order_id: order.id });
+      console.log(`Alterado situação do pedido ${order.id}`);
+      handleClose();
+    } catch (err) {
+      console.log(err);
+      handleClose();
+    }
+  }, [handleClose, order]);
+
   // close if there is not printer in product
   useEffect(() => {
     const check = order.products.some(product => product.printer);
-    if (!check) handleClose();
-  }, [handleClose, order]);
+
+    if (!check) {
+      setOrderAsPrinted();
+    }
+  }, [setOrderAsPrinted, order]);
 
   // get product printers
   useEffect(() => {
@@ -162,30 +176,19 @@ const DispatchedOrderOnly: React.FC<DispatchedOrderOnlyProps> = ({ handleClose, 
   }, [order]);
 
   useEffect(() => {
-    async function setPrinted() {
-      try {
-        await api.post(`/orders/printed`, { order_id: order.id });
-        console.log(`Alterado situação do pedido ${order.id}`);
-        handleClose();
-      } catch (err) {
-        console.log(err);
-        handleClose();
-      }
-    }
-
     if (printers.length > 0) {
       const tp = printers.find(p => !p.printed);
 
       // close if all order products had been printed
       if (!tp) {
         const check = printers.every(p => p.printed);
-        if (check) setPrinted();
+        if (check) setOrderAsPrinted();
         return;
       }
 
       setToPrint([tp]);
     }
-  }, [printers, handleClose, order]);
+  }, [printers, setOrderAsPrinted, order]);
 
   // print
   useEffect(() => {

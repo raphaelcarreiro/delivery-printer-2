@@ -26,6 +26,8 @@ const Home: React.FC = () => {
   const [boardMovement, setBoardMovement] = useState<BoardControlMovement | null>(null);
   const [socket, wsConnected] = useSocket(setOrders, setShipment, setBoardMovement);
 
+  console.log(orders);
+
   useEffect(() => {
     async function getOrders() {
       try {
@@ -60,19 +62,20 @@ const Home: React.FC = () => {
     }
   }, [orders]);
 
-  const handleOrderClose = useCallback(() => {
-    if (toPrint)
-      setOrders(oldOrders =>
-        oldOrders.map(order => {
-          if (order.id === toPrint.id) order.printed = true;
-          return order;
-        })
-      );
-  }, [toPrint]);
+  const handleClose = useCallback(() => {
+    if (!toPrint) {
+      return;
+    }
 
-  const handleShipmentClose = useCallback(() => {
-    if (shipment) setShipment(null);
-  }, [shipment]);
+    setOrders(state =>
+      state.map(order => {
+        if (order.id === toPrint.id) {
+          order.printed = true;
+        }
+        return order;
+      })
+    );
+  }, [toPrint]);
 
   function handleLogout() {
     auth.logout().then(() => {
@@ -87,18 +90,18 @@ const Home: React.FC = () => {
 
   return (
     <>
-      {toPrint && !toPrint.printed ? (
+      {toPrint ? (
         restaurant?.configs.print_by_product ? (
-          <ApprovedOrderSplittedByProduct handleClose={handleOrderClose} order={toPrint} />
+          <ApprovedOrderSplittedByProduct handleClose={handleClose} data={toPrint} />
         ) : toPrint.board_movement_id ? (
-          <ApprovedBoardOrder handleClose={handleOrderClose} order={toPrint} />
+          <ApprovedBoardOrder handleClose={handleClose} data={toPrint} />
         ) : restaurant?.configs.print_only_shipment ? (
-          <DispatchedOrderOnly order={toPrint} handleClose={handleOrderClose} />
+          <DispatchedOrderOnly data={toPrint} handleClose={handleClose} />
         ) : (
-          <ApprovedOrder handleClose={handleOrderClose} order={toPrint} />
+          <ApprovedOrder handleClose={handleClose} data={toPrint} />
         )
-      ) : shipment && !shipment.printed ? (
-        <DispatchedOrder order={shipment} handleClose={handleShipmentClose} />
+      ) : shipment ? (
+        <DispatchedOrder data={shipment} handleClose={() => setShipment(null)} />
       ) : boardMovement ? (
         <BoardBilling movement={boardMovement} handleClose={() => setBoardMovement(null)} />
       ) : (
