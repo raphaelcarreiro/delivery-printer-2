@@ -9,6 +9,7 @@ import Address from './shared-parts/Address';
 import Additional from './shared-parts/Additional';
 import Ingredients from './shared-parts/Ingredients';
 import ComplementCategories from './shared-parts/ComplementCategories';
+import { useSetOrderPrinted } from 'renderer/hooks/useSetOrderPrinted';
 
 interface UseStylesProps {
   fontSize: number;
@@ -68,17 +69,7 @@ const ApprovedOrderSplittedByProduct: React.FC<ApprovedOrderSplittedByProductPro
 
   const [products, setProducts] = useState<ProductPrinterData[]>([]);
   const [toPrint, setToPrint] = useState<ProductPrinterData[]>([]);
-
-  const setOrderAsPrinted = useCallback(async () => {
-    try {
-      await api.post(`/orders/printed`, { order_id: order.id });
-      console.log(`Alterado situação do pedido ${order.id}`);
-      handleClose();
-    } catch (err) {
-      console.log(err);
-      handleClose();
-    }
-  }, [handleClose, order]);
+  const { setOrderAsPrinted } = useSetOrderPrinted(handleClose, order.id);
 
   // close if there is not printer in product
   useEffect(() => {

@@ -9,6 +9,7 @@ import Additional from './shared-parts/Additional';
 import Address from './shared-parts/Address';
 import Ingredients from './shared-parts/Ingredients';
 import ComplementCategories from './shared-parts/ComplementCategories';
+import { useSetOrderPrinted } from 'renderer/hooks/useSetOrderPrinted';
 
 interface UseStylesProps {
   fontSize: number;
@@ -78,21 +79,11 @@ const ApprovedBoardOrder: React.FC<ApprovedBoardOrderProps> = ({ handleClose, da
   const [printers, setPrinters] = useState<PrinterData[]>([]);
   const [toPrint, setToPrint] = useState<PrinterData[]>([]);
   const [printedQuantity, setPrintedQuantity] = useState(0);
+  const { setOrderAsPrinted } = useSetOrderPrinted(handleClose, order.id);
 
   const copies = useMemo(() => {
     return restaurant?.printer_settings.production_template_copies || 1;
   }, [restaurant]);
-
-  const setOrderAsPrinted = useCallback(async () => {
-    try {
-      await api.post(`/orders/printed`, { order_id: order.id });
-      console.log(`Alterado situação do pedido ${order.id}`);
-      handleClose();
-    } catch (err) {
-      console.log(err);
-      handleClose();
-    }
-  }, [handleClose, order]);
 
   // close if there is not printer in product
   useEffect(() => {

@@ -9,6 +9,11 @@ const useStyles = makeStyles({
     borderBottom: '1px dashed #000',
     paddingBottom: 10,
     marginBottom: 10,
+    display: 'inline-flex',
+    gap: 7,
+    flex: 1,
+    width: '100%',
+    justifyContent: 'center',
   },
 });
 
@@ -23,21 +28,21 @@ const Header: FC<HeaderProps> = ({ shipment, formattedSequence }) => {
   return (
     <>
       <div className={classes.header}>
-        {shipment.shipment_method === 'customer_collect' && !shipment.scheduled_at && (
+        {shipment.shipment_method === 'customer_collect' && (
           <PrintTypography bold fontSize={1.2}>
             RETIRADA
           </PrintTypography>
         )}
 
-        {shipment.scheduled_at && (
+        {shipment.shipment_method === 'delivery' && (
           <PrintTypography bold fontSize={1.2}>
-            RETIRADA ÀS {shipment.formattedScheduledAt}
+            ENTREGA
           </PrintTypography>
         )}
 
-        {shipment.shipment_method === 'delivery' && !shipment.scheduled_at && (
+        {shipment.scheduled_at && (
           <PrintTypography bold fontSize={1.2}>
-            ENTREGA
+            ÀS {shipment.formattedScheduledAt}
           </PrintTypography>
         )}
       </div>

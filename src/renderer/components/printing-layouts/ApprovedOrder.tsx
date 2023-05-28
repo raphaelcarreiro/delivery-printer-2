@@ -1,7 +1,6 @@
-import React, { useEffect, useState, Fragment, useMemo, useCallback } from 'react';
+import React, { useEffect, useState, Fragment, useMemo } from 'react';
 import { makeStyles } from '@material-ui/styles';
 import { OrderData, PrinterData } from 'renderer/types/order';
-import { api } from 'renderer/services/api';
 import { Theme } from '@material-ui/core';
 import { useSelector } from 'renderer/store/selector';
 import PrintTypography from '../../base/print-typography/PrintTypography';
@@ -10,6 +9,7 @@ import Header from './shared-parts/Header';
 import Address from './shared-parts/Address';
 import Ingredients from './shared-parts/Ingredients';
 import ComplementCategories from './shared-parts/ComplementCategories';
+import { useSetOrderPrinted } from 'renderer/hooks/useSetOrderPrinted';
 
 interface UseStylesProps {
   fontSize: number;
@@ -70,7 +70,7 @@ interface ApprovedOrderProps {
 
 const ApprovedOrder: React.FC<ApprovedOrderProps> = ({ handleClose, data }) => {
   const restaurant = useSelector(state => state.restaurant);
-  const order = useMemo(() => JSON.parse(JSON.stringify(data)), [data]);
+  const order = useMemo(() => JSON.parse(JSON.stringify(data)) as OrderData, [data]);
   const classes = useStyles({
     fontSize: restaurant?.printer_settings?.font_size || 14,
     noMargin: !!restaurant?.printer_settings?.no_margin,
@@ -79,25 +79,16 @@ const ApprovedOrder: React.FC<ApprovedOrderProps> = ({ handleClose, data }) => {
   const [printers, setPrinters] = useState<PrinterData[]>([]);
   const [toPrint, setToPrint] = useState<PrinterData[]>([]);
   const [printedQuantity, setPrintedQuantity] = useState(0);
+  const { setOrderAsPrinted } = useSetOrderPrinted(handleClose, order.id);
 
   const copies = useMemo(() => {
     return restaurant?.printer_settings.production_template_copies || 1;
   }, [restaurant]);
 
-  const setOrderAsPrinted = useCallback(async () => {
-    try {
-      await api.post(`/orders/printed`, { order_id: order.id });
-      console.log(`Alterado situação do pedido ${order.id}`);
-      handleClose();
-    } catch (err) {
-      console.log(err);
-      handleClose();
-    }
-  }, [handleClose, order]);
-
   // close if there is not printer in product
   useEffect(() => {
     const check = order.products.some(product => product.printer);
+
     if (!check) {
       setOrderAsPrinted();
     }
@@ -130,31 +121,39 @@ const ApprovedOrder: React.FC<ApprovedOrderProps> = ({ handleClose, data }) => {
   }, [order]);
 
   useEffect(() => {
-    if (printers.length > 0) {
-      const tp = printers.find(p => !p.printed);
+    if (!printers.length) {
+      return;
+    }
 
-      // close if all order products had been printed
-      if (!tp) {
-        const check = printers.every(p => p.printed);
-        if (check) setOrderAsPrinted();
-        return;
-      }
+    const tp = printers.find(p => !p.printed);
 
+    if (tp) {
       setToPrint([tp]);
       setPrintedQuantity(0);
+    }
+
+    // close if all order products had been printed
+    const check = printers.every(p => p.printed);
+
+    if (check) {
+      setOrderAsPrinted();
     }
   }, [printers, setOrderAsPrinted, order]);
 
   // print
   useEffect(() => {
-    if (!toPrint.length) return;
+    if (!toPrint.length) {
+      return;
+    }
 
     const [printing] = toPrint;
 
     if (printedQuantity === copies) {
-      setPrinters(oldPrinters =>
-        oldPrinters.map(p => {
-          if (p.id === printing.id) p.printed = true;
+      setPrinters(state =>
+        state.map(p => {
+          if (p.id === printing.id) {
+            p.printed = true;
+          }
           return p;
         })
       );
