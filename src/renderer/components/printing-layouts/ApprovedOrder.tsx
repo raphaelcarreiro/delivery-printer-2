@@ -96,28 +96,36 @@ const ApprovedOrder: React.FC<ApprovedOrderProps> = ({ handleClose, data }) => {
 
   // get product printers
   useEffect(() => {
-    if (order) {
-      let productPrinters: PrinterData[] = [];
-      order.products.forEach(product => {
-        if (product.printer) {
-          if (!productPrinters.some(printer => printer.id === product.printer.id))
-            productPrinters.push(product.printer);
-        }
-      });
-
-      productPrinters = productPrinters.map(_printer => {
-        _printer.order = {
-          ...order,
-          products: order.products.filter(product => {
-            return product.printer && product.printer.id === _printer.id;
-          }),
-        };
-        _printer.printed = false;
-        return _printer;
-      });
-
-      setPrinters(productPrinters);
+    if (!order) {
+      return;
     }
+
+    let productPrinters: PrinterData[] = [];
+
+    order.products.forEach(product => {
+      if (!product.printer) {
+        return;
+      }
+
+      if (!productPrinters.some(printer => printer.id === product.printer.id)) {
+        productPrinters.push(product.printer);
+      }
+    });
+
+    productPrinters = productPrinters.map(printer => {
+      printer.order = {
+        ...order,
+        products: order.products.filter(product => {
+          return product.printer && product.printer.id === printer.id;
+        }),
+      };
+
+      printer.printed = false;
+
+      return printer;
+    });
+
+    setPrinters(productPrinters);
   }, [order]);
 
   useEffect(() => {
@@ -125,22 +133,18 @@ const ApprovedOrder: React.FC<ApprovedOrderProps> = ({ handleClose, data }) => {
       return;
     }
 
-    const tp = printers.find(p => !p.printed);
+    const tp = printers.find(printer => !printer.printed);
 
     if (tp) {
       setToPrint([tp]);
       setPrintedQuantity(0);
+      return;
     }
 
-    // close if all order products had been printed
-    const check = printers.every(p => p.printed);
-
-    if (check) {
-      setOrderAsPrinted();
-    }
+    // close when all order products had been printed
+    setOrderAsPrinted();
   }, [printers, setOrderAsPrinted, order]);
 
-  // print
   useEffect(() => {
     if (!toPrint.length) {
       return;
@@ -150,11 +154,11 @@ const ApprovedOrder: React.FC<ApprovedOrderProps> = ({ handleClose, data }) => {
 
     if (printedQuantity === copies) {
       setPrinters(state =>
-        state.map(p => {
-          if (p.id === printing.id) {
-            p.printed = true;
+        state.map(printer => {
+          if (printer.id === printing.id) {
+            printer.printed = true;
           }
-          return p;
+          return printer;
         })
       );
       return;
