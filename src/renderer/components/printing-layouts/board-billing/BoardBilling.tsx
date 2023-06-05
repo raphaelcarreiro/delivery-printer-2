@@ -60,7 +60,8 @@ interface BoardBilingProps {
 const BoardBilling: React.FC<BoardBilingProps> = ({ movement, handleClose }) => {
   const restaurant = useSelector(state => state.restaurant);
   const classes = styles({
-    fontSize: restaurant?.printer_settings?.font_size || 14,
+    fontSize: 12,
+    // fontSize: restaurant?.printer_settings?.font_size || 14,
     noMargin: !!restaurant?.printer_settings?.no_margin,
   });
   const [printedQuantity, setPrintedQuantity] = useState(0);
