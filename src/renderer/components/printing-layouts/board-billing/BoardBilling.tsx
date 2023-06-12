@@ -1,5 +1,5 @@
 import { Theme, makeStyles } from '@material-ui/core';
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { BoardControlMovement } from 'renderer/types/boardControlMovement';
 import PrintTypography from '../../../base/print-typography/PrintTypography';
 import BoardBillingProducts from './BoardBillingProducts';
@@ -64,14 +64,9 @@ const BoardBilling: React.FC<BoardBilingProps> = ({ movement, handleClose }) => 
     // fontSize: restaurant?.printer_settings?.font_size || 14,
     noMargin: !!restaurant?.printer_settings?.no_margin,
   });
-  const [printedQuantity, setPrintedQuantity] = useState(0);
   const formattedTotal = moneyFormat(movement?.total ?? 0);
   const formattedDiscount = moneyFormat(movement?.total ?? 0);
   const [printed, setPrinted] = useState(false);
-
-  const copies = useMemo(() => {
-    return restaurant?.printer_settings.shipment_template_copies || 1;
-  }, [restaurant]);
 
   useEffect(() => {
     if (printed) {
@@ -79,25 +74,20 @@ const BoardBilling: React.FC<BoardBilingProps> = ({ movement, handleClose }) => 
       return;
     }
 
-    if (printedQuantity === copies) {
-      setPrinted(true);
-      return;
-    }
-
     window.electron
       .print()
       .then(() => {
-        setPrintedQuantity(state => state + 1);
+        setPrinted(true);
       })
       .catch(err => {
         console.error(err);
         handleClose();
       });
-  }, [printed, handleClose, copies, printedQuantity]);
+  }, [printed, handleClose]);
 
   return (
     <>
-      {movement && (
+      {movement && !printed && (
         <div className={classes.container}>
           <div className={classes.header}>
             <PrintTypography fontSize={1.2} bold>

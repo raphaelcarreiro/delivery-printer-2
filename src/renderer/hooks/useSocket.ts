@@ -42,8 +42,6 @@ export function useSocket(
     });
 
     socket.on('print_board_billing', (movement: BoardControlMovement) => {
-      console.log(movement);
-
       setBoardMovement(movement);
     });
 
