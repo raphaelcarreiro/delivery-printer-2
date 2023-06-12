@@ -1,7 +1,6 @@
-import React, { useEffect, useState, Fragment, useMemo, useCallback } from 'react';
+import React, { useEffect, useState, Fragment, useMemo } from 'react';
 import { makeStyles } from '@material-ui/styles';
 import { OrderData, ProductPrinterData } from 'renderer/types/order';
-import { api } from 'renderer/services/api';
 import { Theme } from '@material-ui/core';
 import { useSelector } from 'renderer/store/selector';
 import PrintTypography from '../../base/print-typography/PrintTypography';
