@@ -137,7 +137,7 @@ const ApprovedBoardOrder: React.FC<ApprovedBoardOrderProps> = ({ handleClose, da
     setOrderAsPrinted();
     setPrinters([]);
     setToPrint([]);
-  }, [printers, setOrderAsPrinted, order]);
+  }, [printers, setOrderAsPrinted]);
 
   // print
   useEffect(() => {

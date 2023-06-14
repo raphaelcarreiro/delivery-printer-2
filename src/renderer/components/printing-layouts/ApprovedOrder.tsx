@@ -145,7 +145,7 @@ const ApprovedOrder: React.FC<ApprovedOrderProps> = ({ handleClose, data }) => {
     setOrderAsPrinted();
     setPrinters([]);
     setToPrint([]);
-  }, [printers, setOrderAsPrinted, order]);
+  }, [printers, setOrderAsPrinted]);
 
   useEffect(() => {
     if (!toPrint.length) {
