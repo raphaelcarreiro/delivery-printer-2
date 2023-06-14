@@ -167,19 +167,23 @@ const DispatchedOrderOnly: React.FC<DispatchedOrderOnlyProps> = ({ handleClose, 
   }, [order]);
 
   useEffect(() => {
-    if (printers.length > 0) {
-      const tp = printers.find(p => !p.printed);
-
-      // close if all order products had been printed
-      if (!tp) {
-        const check = printers.every(p => p.printed);
-        if (check) setOrderAsPrinted();
-        return;
-      }
-
-      setToPrint([tp]);
+    if (!printers.length) {
+      return;
     }
-  }, [printers, setOrderAsPrinted, order]);
+
+    const tp = printers.find(printer => !printer.printed);
+
+    if (tp) {
+      setToPrint([tp]);
+      setPrintedQuantity(0);
+      return;
+    }
+
+    // close when all order products had been printed
+    setOrderAsPrinted();
+    setPrinters([]);
+    setToPrint([]);
+  }, [printers, setOrderAsPrinted]);
 
   // print
   useEffect(() => {
@@ -188,10 +192,12 @@ const DispatchedOrderOnly: React.FC<DispatchedOrderOnlyProps> = ({ handleClose, 
     const [printing] = toPrint;
 
     if (printedQuantity === copies) {
-      setPrinters(oldPrinters =>
-        oldPrinters.map(p => {
-          if (p.id === printing.id) p.printed = true;
-          return p;
+      setPrinters(state =>
+        state.map(printer => {
+          if (printer.id === printing.id) {
+            printer.printed = true;
+          }
+          return printer;
         })
       );
       return;
@@ -254,7 +260,7 @@ const DispatchedOrderOnly: React.FC<DispatchedOrderOnlyProps> = ({ handleClose, 
             <div className={classes.products}>
               <table>
                 <tbody>
-                  {order.products.map(product => (
+                  {printer.order.products.map(product => (
                     <tr key={product.id}>
                       <td className={classes.productAmount}>
                         <PrintTypography>{product.amount}x</PrintTypography>
