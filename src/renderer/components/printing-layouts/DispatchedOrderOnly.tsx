@@ -260,7 +260,7 @@ const DispatchedOrderOnly: React.FC<DispatchedOrderOnlyProps> = ({ handleClose, 
             <div className={classes.products}>
               <table>
                 <tbody>
-                  {printer.order.products.map(product => (
+                  {order.products.map(product => (
                     <tr key={product.id}>
                       <td className={classes.productAmount}>
                         <PrintTypography>{product.amount}x</PrintTypography>
