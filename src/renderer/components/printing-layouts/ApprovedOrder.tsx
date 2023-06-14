@@ -81,8 +81,6 @@ const ApprovedOrder: React.FC<ApprovedOrderProps> = ({ handleClose, data }) => {
   const [printedQuantity, setPrintedQuantity] = useState(0);
   const { setOrderAsPrinted } = useSetOrderPrinted(handleClose, order.id);
 
-  console.log(printers);
-
   const copies = useMemo(() => {
     return restaurant?.printer_settings.production_template_copies || 1;
   }, [restaurant]);
