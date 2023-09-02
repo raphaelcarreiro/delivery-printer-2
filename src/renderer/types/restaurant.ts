@@ -11,6 +11,7 @@ export interface PrinterSetting {
   shipment_template_copies: number;
   no_margin: boolean;
   max_width: number;
+  margin_size: number;
 }
 
 export interface Restaurant {

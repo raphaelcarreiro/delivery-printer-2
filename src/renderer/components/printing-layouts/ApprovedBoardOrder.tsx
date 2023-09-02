@@ -1,7 +1,6 @@
-import React, { useEffect, useState, Fragment, useMemo, useCallback } from 'react';
+import React, { useEffect, useState, Fragment, useMemo } from 'react';
 import { makeStyles } from '@material-ui/styles';
 import { OrderData, PrinterData } from 'renderer/types/order';
-import { api } from 'renderer/services/api';
 import { Theme } from '@material-ui/core';
 import { useSelector } from 'renderer/store/selector';
 import PrintTypography from '../../base/print-typography/PrintTypography';
@@ -14,6 +13,7 @@ import { useSetOrderPrinted } from 'renderer/hooks/useSetOrderPrinted';
 interface UseStylesProps {
   fontSize: number;
   noMargin: boolean;
+  marginSize: number;
 }
 
 const useStyles = makeStyles<Theme, UseStylesProps>({
@@ -28,7 +28,7 @@ const useStyles = makeStyles<Theme, UseStylesProps>({
       '&': {
         backgroundColor: 'transparent',
         border: 'none',
-        padding: props.noMargin ? '0 0 0 0' : '0 0 0 10px',
+        padding: props.noMargin ? 0 : props.marginSize,
         marginRight: 0,
       },
     },
@@ -74,6 +74,7 @@ const ApprovedBoardOrder: React.FC<ApprovedBoardOrderProps> = ({ handleClose, da
   const classes = useStyles({
     fontSize: restaurant?.printer_settings?.font_size || 14,
     noMargin: !!restaurant?.printer_settings?.no_margin,
+    marginSize: restaurant?.printer_settings.margin_size ?? 15,
   });
 
   const [printers, setPrinters] = useState<PrinterData[]>([]);

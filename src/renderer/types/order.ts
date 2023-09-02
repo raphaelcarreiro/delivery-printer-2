@@ -71,6 +71,7 @@ export interface Shipment {
   shipment_method: string;
   city: string;
   region: string;
+  reference_point: string | null;
 }
 
 interface Customer {

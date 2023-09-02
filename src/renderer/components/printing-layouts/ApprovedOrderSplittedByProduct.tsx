@@ -12,6 +12,8 @@ import { useSetOrderPrinted } from 'renderer/hooks/useSetOrderPrinted';
 
 interface UseStylesProps {
   fontSize: number;
+  noMargin: boolean;
+  marginSize: number;
 }
 
 const useStyles = makeStyles<Theme, UseStylesProps>({
@@ -26,7 +28,7 @@ const useStyles = makeStyles<Theme, UseStylesProps>({
       '&': {
         backgroundColor: 'transparent',
         border: 'none',
-        padding: '0 0 0 10px',
+        padding: props.noMargin ? 0 : props.marginSize,
         marginRight: 0,
       },
     },
@@ -63,7 +65,9 @@ const ApprovedOrderSplittedByProduct: React.FC<ApprovedOrderSplittedByProductPro
   const restaurant = useSelector(state => state.restaurant);
   const order = useMemo(() => JSON.parse(JSON.stringify(data)), [data]);
   const classes = useStyles({
-    fontSize: restaurant?.printer_settings.font_size || 14,
+    fontSize: restaurant?.printer_settings?.font_size || 14,
+    noMargin: !!restaurant?.printer_settings?.no_margin,
+    marginSize: restaurant?.printer_settings.margin_size ?? 15,
   });
 
   const [products, setProducts] = useState<ProductPrinterData[]>([]);

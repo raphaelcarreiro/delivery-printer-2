@@ -8,12 +8,10 @@ interface AddressProps {
 
 const Address: React.FC<AddressProps> = ({ shipment }) => {
   const text = useMemo(() => {
-    if (shipment.complement) {
-      return `${shipment.address}, nº ${shipment.number}, ${shipment.complement},
-    ${shipment.district}, ${shipment.city} - ${shipment.region}`;
-    }
+    const complement = shipment.complement ? `${shipment.complement},` : '';
+    const referencePoint = shipment.reference_point ? `, ${shipment.reference_point}` : '';
 
-    return `${shipment.address}, nº ${shipment.number}, ${shipment.district}, ${shipment.city} - ${shipment.region}`;
+    return `${shipment.address}, nº ${shipment.number}, ${complement} ${shipment.district}, ${shipment.city} - ${shipment.region}${referencePoint}`;
   }, [shipment]);
 
   return <PrintTypography>{text}</PrintTypography>;

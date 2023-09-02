@@ -14,6 +14,7 @@ import { useSetOrderPrinted } from 'renderer/hooks/useSetOrderPrinted';
 interface UseStylesProps {
   fontSize: number;
   noMargin: boolean;
+  marginSize: number;
 }
 
 const useStyles = makeStyles<Theme, UseStylesProps>({
@@ -28,7 +29,7 @@ const useStyles = makeStyles<Theme, UseStylesProps>({
       '&': {
         backgroundColor: 'transparent',
         border: 'none',
-        padding: props.noMargin ? '0 0 0 0' : '0 0 0 10px',
+        padding: props.noMargin ? 0 : props.marginSize,
         marginRight: 0,
       },
     },
@@ -74,6 +75,7 @@ const ApprovedOrder: React.FC<ApprovedOrderProps> = ({ handleClose, data }) => {
   const classes = useStyles({
     fontSize: restaurant?.printer_settings?.font_size || 14,
     noMargin: !!restaurant?.printer_settings?.no_margin,
+    marginSize: restaurant?.printer_settings.margin_size ?? 15,
   });
 
   const [printers, setPrinters] = useState<PrinterData[]>([]);
@@ -84,6 +86,8 @@ const ApprovedOrder: React.FC<ApprovedOrderProps> = ({ handleClose, data }) => {
   const copies = useMemo(() => {
     return restaurant?.printer_settings.production_template_copies || 1;
   }, [restaurant]);
+
+  console.log('approved order');
 
   // close if there is not printer in product
   useEffect(() => {

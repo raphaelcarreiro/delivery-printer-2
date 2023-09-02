@@ -1,7 +1,6 @@
-import React, { useEffect, useState, Fragment, useMemo, useCallback } from 'react';
+import React, { useEffect, useState, Fragment, useMemo } from 'react';
 import { makeStyles } from '@material-ui/styles';
 import { OrderData, PrinterData } from 'renderer/types/order';
-import { api } from 'renderer/services/api';
 import { Theme } from '@material-ui/core';
 import { useSelector } from 'renderer/store/selector';
 import PrintTypography from '../../base/print-typography/PrintTypography';
@@ -16,6 +15,7 @@ interface UseStylesProps {
   fontSize: number;
   noMargin: boolean;
   maxWidth: number;
+  marginSize: number;
 }
 
 const useStyles = makeStyles<Theme, UseStylesProps>({
@@ -31,7 +31,7 @@ const useStyles = makeStyles<Theme, UseStylesProps>({
       '&': {
         backgroundColor: 'transparent',
         border: 'none',
-        padding: props.noMargin ? '0 0 0 0' : '0 0 0 10px',
+        padding: props.noMargin ? 0 : props.marginSize,
         marginRight: 0,
       },
     },
@@ -121,6 +121,7 @@ const DispatchedOrderOnly: React.FC<DispatchedOrderOnlyProps> = ({ handleClose, 
     fontSize: restaurant?.printer_settings?.font_size || 14,
     noMargin: !!restaurant?.printer_settings?.no_margin,
     maxWidth: restaurant?.printer_settings?.max_width || 80,
+    marginSize: restaurant?.printer_settings.margin_size ?? 15,
   });
   const [printers, setPrinters] = useState<PrinterData[]>([]);
   const [toPrint, setToPrint] = useState<PrinterData[]>([]);
