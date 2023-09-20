@@ -51,6 +51,10 @@ export function useSocket(
       dispatch(setRestaurantIsOpen(response.isOpen));
     });
 
+    socket.on('admin_ping', () => {
+      socket.emit('printer_ping', { restaurant_id: restaurant?.id, message: 'OK' });
+    });
+
     return () => {
       socket.off('handleRestaurantState');
       socket.off('printShipment');
