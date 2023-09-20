@@ -12,6 +12,8 @@ const socket: Socket = io(constants.WS_BASE_URL);
 
 type UseSocket = [Socket, boolean];
 
+let timer: NodeJS.Timeout;
+
 export function useSocket(
   setOrders: Dispatch<SetStateAction<OrderData[]>>,
   setShipment: Dispatch<SetStateAction<OrderData | null>>,
@@ -68,7 +70,16 @@ export function useSocket(
 
     if (restaurant && connected) {
       socket.emit('register', restaurant.id);
+      socket.emit('printer_ping', { restaurant_id: restaurant.id, message: 'OK' });
+
+      timer = setInterval(() => {
+        socket.emit('printer_ping', { restaurant_id: restaurant?.id, message: 'OK' });
+      }, 30000);
     }
+
+    return () => {
+      clearTimeout(timer);
+    };
   }, [connected, restaurant, setShipment, formatOrder]);
 
   return [socket, connected];
