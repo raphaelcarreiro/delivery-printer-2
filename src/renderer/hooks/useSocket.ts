@@ -52,7 +52,7 @@ export function useSocket(
     });
 
     socket.on('admin_ping', () => {
-      socket.emit('printer_ping', { restaurant_id: restaurant?.id, message: 'OK' });
+      socket.emit('printer_ping', restaurant?.id);
     });
 
     return () => {
@@ -74,10 +74,10 @@ export function useSocket(
 
     if (restaurant && connected) {
       socket.emit('register', restaurant.id);
-      socket.emit('printer_ping', { restaurant_id: restaurant.id, message: 'OK' });
+      socket.emit('printer_ping', restaurant.id);
 
       timer = setInterval(() => {
-        socket.emit('printer_ping', { restaurant_id: restaurant?.id, message: 'OK' });
+        socket.emit('printer_ping', restaurant.id);
       }, 30000);
     }
 
