@@ -87,8 +87,6 @@ const ApprovedOrder: React.FC<ApprovedOrderProps> = ({ handleClose, data }) => {
     return restaurant?.printer_settings.production_template_copies || 1;
   }, [restaurant]);
 
-  console.log('approved order');
-
   // close if there is not printer in product
   useEffect(() => {
     const check = order.products.some(product => product.printer);
