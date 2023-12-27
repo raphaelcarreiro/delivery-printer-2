@@ -35,12 +35,30 @@ export function useSocket(
 
     socket.on('stored', (order: OrderData) => {
       const formattedOrder = formatOrder(order);
-      setOrders(oldOrders => [...oldOrders, formattedOrder]);
+
+      setOrders(state => {
+        const exist = state.some(item => item.id === order.id);
+
+        if (exist) {
+          return state;
+        }
+
+        return [...state, formattedOrder];
+      });
     });
 
     socket.on('printOrder', (order: OrderData) => {
       const formattedOrder = formatOrder(order);
-      setOrders(oldOrders => [...oldOrders, formattedOrder]);
+
+      setOrders(state => {
+        const exist = state.some(item => item.id === order.id);
+
+        if (exist) {
+          return state;
+        }
+
+        return [...state, formattedOrder];
+      });
     });
 
     socket.on('print_board_billing', (movement: BoardControlMovement) => {
