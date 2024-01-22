@@ -230,6 +230,8 @@ const DispatchedOrderOnly: React.FC<DispatchedOrderOnlyProps> = ({ handleClose, 
           <div key={printer.id} className={classes.container}>
             <Header formattedSequence={order.formattedSequence} shipment={order.shipment} />
 
+            <PrintTypography gutterBottom>{order.formattedDate}</PrintTypography>
+
             <div className={classes.customerData}>
               <PrintTypography>Cliente</PrintTypography>
               <PrintTypography>{order.customer.name}</PrintTypography>
