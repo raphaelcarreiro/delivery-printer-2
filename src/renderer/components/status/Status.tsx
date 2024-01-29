@@ -89,7 +89,7 @@ const Status: React.FC<StatusProps> = ({ wsConnected, handleLogout }) => {
   return (
     <div className={classes.container}>
       <div className={classes.logoContent}>
-        <img className={classes.logo} src={restaurant?.image.imageUrl} alt="logo do restaurante" />
+        <img className={classes.logo} src={restaurant?.image?.imageUrl} alt="logo do restaurante" />
         <div>
           <Typography variant="h4">{restaurant?.name}</Typography>
           <Typography variant="body1" color="textSecondary">

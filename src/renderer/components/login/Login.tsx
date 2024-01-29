@@ -54,9 +54,12 @@ const Login: React.FC = () => {
   const messaging = useMessaging();
 
   useEffect(() => {
-    if (auth.isAuthenticated()) {
-      history.push('/');
-    }
+    setLoading(true);
+
+    auth
+      .me()
+      .then(() => history.push('/'))
+      .catch(() => setLoading(false));
   }, [auth]);
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {

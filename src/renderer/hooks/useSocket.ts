@@ -83,7 +83,7 @@ export function useSocket(
   }, [restaurant, dispatch, formatOrder, setOrders, setBoardMovement]);
 
   useEffect(() => {
-    if (!restaurant?.configs.print_only_shipment) {
+    if (!restaurant?.configs?.print_only_shipment) {
       socket.on('printShipment', (order: OrderData) => {
         const formattedOrder = formatOrder(order);
         setShipment(formattedOrder);

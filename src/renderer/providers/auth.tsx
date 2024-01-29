@@ -4,13 +4,16 @@ import { setRestaurant } from 'renderer/store/modules/restaurant/actions';
 import { setUser } from 'renderer/store/modules/user/actions';
 import { User } from 'renderer/types/user';
 import { api } from 'renderer/services/api';
+import { AxiosError } from 'axios';
+import { Restaurant } from 'renderer/types/restaurant';
 
 interface AuthContextData {
-  login(email: string, password: string): Promise<boolean>;
-  logout(): Promise<boolean>;
+  login(email: string, password: string): Promise<void>;
+  logout(): Promise<void>;
   isAuthenticated(): boolean;
   checkEmail(email: string): Promise<User>;
   loading: boolean;
+  me(): Promise<void>;
 }
 
 const AuthContext = React.createContext({} as AuthContextData);
@@ -26,82 +29,68 @@ interface AuthProviderProps {
 
 const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const dispatch = useDispatch();
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [authenticated, setAuthenticated] = useState(false);
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
-
-    if (!token) {
-      return;
-    }
-
     setLoading(true);
     api
-      .get('/users/current')
+      .get('/users/me')
       .then(response => {
         dispatch(setRestaurant(response.data.restaurant));
         dispatch(setUser(response.data));
       })
       .catch(err => console.error(err))
-      .finally(() => {
-        setLoading(false);
-      });
+      .finally(() => setLoading(false));
   }, [dispatch]);
 
   const login = useCallback(
-    async (email: string, password: string): Promise<boolean> => {
-      return new Promise((resolve, reject) => {
-        api
-          .post('/login', { email, password })
-          .then(_response => {
-            const response = _response.data.data;
-            localStorage.setItem('token', response.token);
-            dispatch(setRestaurant(response.restaurant));
-            dispatch(setUser(response.user));
-            resolve(true);
-          })
-          .catch(err => {
-            if (err.response) {
-              if (err.response.status === 401) reject(new Error('Usuário ou senha incorretos'));
-            } else reject(new Error(err.message));
-          });
-      });
+    async (email: string, password: string): Promise<void> => {
+      try {
+        const response = await api.post('/login', {
+          email,
+          password,
+        });
+
+        dispatch(setRestaurant(response.data.data.restaurant));
+        dispatch(setUser(response.data.data.user));
+        setAuthenticated(true);
+      } catch (err) {
+        if (err instanceof AxiosError && err.response?.status === 401) {
+          throw new Error('Usuário ou senha incorretos');
+        }
+
+        throw new Error('Não foi possível fazer o login');
+      }
     },
     [dispatch]
   );
 
-  const checkEmail = useCallback((email: string): Promise<User> => {
-    return new Promise((resolve, reject) => {
-      api
-        .get(`/user/show/${email}`)
-        .then(response => {
-          resolve(response.data.data);
-        })
-        .catch(err => {
-          if (err.response) {
-            if (err.response.status === 401) reject(new Error('E-mail não encontrado'));
-          } else reject(new Error(err.message));
-        });
-    });
+  const checkEmail = useCallback(async (email: string): Promise<User> => {
+    try {
+      const response = await api.get(`/user/show/${email}`);
+      return response.data.data;
+    } catch (err) {
+      if (err instanceof AxiosError && err.response?.status === 401) {
+        throw new Error('E-mail não encontrado');
+      }
+
+      throw err;
+    }
   }, []);
 
-  const logout = useCallback((): Promise<boolean> => {
-    return new Promise((resolve, reject) => {
-      api
-        .post('/logout')
-        .then(() => {
-          localStorage.removeItem('token');
-          dispatch(setRestaurant(null));
-          resolve(true);
-        })
-        .catch(err => {
-          reject(new Error(err));
-        });
-    });
+  const logout = useCallback(async (): Promise<void> => {
+    await api.post('/logout');
+    setAuthenticated(false);
+    dispatch(setRestaurant({} as Restaurant));
   }, [dispatch]);
 
   const isAuthenticated = useCallback((): boolean => {
-    return !!localStorage.getItem('token');
+    return authenticated;
+  }, [authenticated]);
+
+  const me = useCallback(async () => {
+    await api.get('/users/me');
   }, []);
 
   return (
@@ -112,6 +101,7 @@ const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         isAuthenticated,
         checkEmail,
         loading,
+        me,
       }}
     >
       {children}
