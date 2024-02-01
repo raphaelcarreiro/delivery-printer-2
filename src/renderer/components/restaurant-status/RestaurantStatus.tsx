@@ -42,14 +42,14 @@ const RestaurantStatus: React.FC<RestaurantStatusProps> = ({ wsConnected }) => {
         <div className={classes.statusContainer}>
           <Typography color="inherit" className={classes.status}>
             <MdFiberManualRecord />
-            {restaurant?.is_open ? 'Online' : 'Offline'}
+            {restaurant?.is_open ? 'online' : 'offline'}
           </Typography>
         </div>
       ) : (
         <div className={classes.statusContainer}>
           <Typography color="inherit" className={classes.status}>
             <MdFiberManualRecord />
-            Conectando...
+            conectando...
           </Typography>
         </div>
       )}
