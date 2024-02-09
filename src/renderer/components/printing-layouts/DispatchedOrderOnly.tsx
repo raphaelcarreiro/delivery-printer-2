@@ -107,6 +107,9 @@ const useStyles = makeStyles<Theme, UseStylesProps>({
     // display: 'flex',
     flexWrap: 'wrap',
   },
+  user: {
+    marginTop: 15,
+  },
 });
 
 interface DispatchedOrderOnlyProps {
@@ -356,6 +359,15 @@ const DispatchedOrderOnly: React.FC<DispatchedOrderOnlyProps> = ({ handleClose, 
                 </>
               )}
             </div>
+
+            {order.admin_user && (
+              <div className={classes.user}>
+                <PrintTypography>
+                  Emitido por <strong>{order.admin_user.name}</strong>
+                </PrintTypography>
+              </div>
+            )}
+
             <div className={classes.developer}>
               <PrintTypography fontSize={0.9} align="center">
                 www.sgrande.delivery

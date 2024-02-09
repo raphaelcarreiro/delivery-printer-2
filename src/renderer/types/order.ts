@@ -90,6 +90,10 @@ interface Deliverer {
   name: string;
 }
 
+interface AdminUser {
+  name: string;
+}
+
 export interface OrderData {
   id: number;
   formattedId: string;
@@ -117,4 +121,5 @@ export interface OrderData {
   formattedSequence: string;
   board_movement_id: number | null;
   board_movement: BoardMovement | null;
+  admin_user: AdminUser;
 }

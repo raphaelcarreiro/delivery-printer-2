@@ -187,6 +187,8 @@ const ApprovedOrder: React.FC<ApprovedOrderProps> = ({ handleClose, data }) => {
       });
   }, [toPrint, handleClose, copies, printedQuantity]);
 
+  console.log(order.admin_user);
+
   return (
     <>
       {toPrint.length > 0 &&
@@ -195,6 +197,7 @@ const ApprovedOrder: React.FC<ApprovedOrderProps> = ({ handleClose, data }) => {
             <Header formattedSequence={order.formattedSequence} shipment={order.shipment} />
 
             <PrintTypography>{order.formattedDate}</PrintTypography>
+
             <PrintTypography gutterBottom>{order.customer.name}</PrintTypography>
 
             {order.shipment.shipment_method === 'delivery' && <Address shipment={order.shipment} />}
@@ -241,6 +244,13 @@ const ApprovedOrder: React.FC<ApprovedOrderProps> = ({ handleClose, data }) => {
                 </tbody>
               </table>
             </div>
+
+            {order.admin_user && (
+              <PrintTypography>
+                Emitido por <strong>{order.admin_user.name}</strong>
+              </PrintTypography>
+            )}
+
             <PrintTypography align="center">.</PrintTypography>
           </div>
         ))}

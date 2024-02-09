@@ -234,6 +234,13 @@ const ApprovedOrderSplittedByProduct: React.FC<ApprovedOrderSplittedByProductPro
                 </tbody>
               </table>
             </div>
+
+            {order.admin_user && (
+              <PrintTypography>
+                Emitido por <strong>{order.admin_user.name}</strong>
+              </PrintTypography>
+            )}
+
             <PrintTypography align="center">.</PrintTypography>
           </div>
         ))}

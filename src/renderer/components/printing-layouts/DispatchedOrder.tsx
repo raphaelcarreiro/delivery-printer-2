@@ -97,6 +97,9 @@ const useStyles = makeStyles<Theme, UseStylesProps>({
     paddingBottom: 10,
     marginBottom: 10,
   },
+  user: {
+    marginTop: 15,
+  },
 });
 
 interface DispatchedOrderProps {
@@ -264,6 +267,15 @@ const DispatchedOrder: React.FC<DispatchedOrderProps> = ({ handleClose, data }) 
               </>
             )}
           </div>
+
+          {order.admin_user && (
+            <div className={classes.user}>
+              <PrintTypography>
+                Emitido por <strong>{order.admin_user.name}</strong>
+              </PrintTypography>
+            </div>
+          )}
+
           <div className={classes.developer}>
             <PrintTypography fontSize={0.9} align="center">
               www.sgrande.delivery
