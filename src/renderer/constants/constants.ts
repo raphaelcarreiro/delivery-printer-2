@@ -1,7 +1,7 @@
-export default process.env.NODE_ENV !== 'production'
+export default process.env.NODE_ENV === 'production'
   ? {
-      BASE_URL: 'https://api-staging.sgrande.delivery/api/admin/',
-      WS_BASE_URL: 'https://socket-staging.sgrande.delivery/admin',
+      BASE_URL: 'https://api.sgrande.delivery/api/admin/',
+      WS_BASE_URL: 'https://socket.sgrande.delivery/admin',
       TOKEN: 'KkAUmBJBpKLI6SMjSYSX8vqkwehE6H5a0D6mfnJiIq3UdRvkxwvtsC0cnmZpgG9Y',
     }
   : {
