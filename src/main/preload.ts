@@ -20,6 +20,8 @@ const electronHandler = {
     },
   },
   print: (deviceName?: string): Promise<boolean> => ipcRenderer.invoke('print', deviceName),
+  rawPrint: (content: string, deviceName?: string): Promise<void> =>
+    ipcRenderer.invoke('rawPrint', content, deviceName),
 };
 
 contextBridge.exposeInMainWorld('electron', electronHandler);

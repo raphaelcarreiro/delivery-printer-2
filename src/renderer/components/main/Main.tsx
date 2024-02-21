@@ -15,6 +15,7 @@ import ApprovedBoardOrder from '../printing-layouts/ApprovedBoardOrder';
 import ApprovedOrder from '../printing-layouts/ApprovedOrder';
 import DispatchedOrder from '../printing-layouts/DispatchedOrder';
 import BoardBilling from '../printing-layouts/board-billing/BoardBilling';
+import { Button } from '@material-ui/core';
 
 const Home: React.FC = () => {
   const [orders, setOrders] = useState<OrderData[]>([]);
@@ -84,8 +85,25 @@ const Home: React.FC = () => {
     return <InsideLoading />;
   }
 
+  function handleClick() {
+    window.electron
+      .rawPrint(
+        `<html>
+        <body>
+          <h1>Hello</h1>
+        </body>
+      </html>`
+      )
+      .catch(err => console.error(err));
+  }
+
   return (
     <>
+      <div style={{ padding: 20 }}>
+        <Button onClick={handleClick} variant="contained" color="primary">
+          imprimir
+        </Button>
+      </div>
       {toPrint ? (
         restaurant?.configs.print_by_product ? (
           <ApprovedOrderSplittedByProduct handleClose={handleClose} data={toPrint} />

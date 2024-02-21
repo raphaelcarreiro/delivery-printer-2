@@ -14,6 +14,7 @@ import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
 import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
+import fs from 'fs';
 
 class AppUpdater {
   constructor() {
@@ -132,6 +133,43 @@ ipcMain.handle('print', (event, deviceName?: string) => {
         reject(reason);
       }
     );
+  });
+});
+
+ipcMain.handle('rawPrint', (event, content: string, deviceName?: string) => {
+  console.log('raw print');
+
+  return new Promise((resolve, reject) => {
+    const win = new BrowserWindow({
+      show: false,
+    });
+
+    fs.writeFileSync(path.join(__dirname, 'print.html'), content);
+
+    win.loadURL('file://' + __dirname + '/print.html').then(() => {
+      win.webContents.print(
+        {
+          silent: true,
+          deviceName,
+          color: false,
+          collate: false,
+          copies: 1,
+          margins: {
+            marginType: 'none',
+          },
+        },
+        (success, reason) => {
+          win.close();
+
+          if (success) {
+            resolve(true);
+            return;
+          }
+
+          reject(reason);
+        }
+      );
+    });
   });
 });
 
