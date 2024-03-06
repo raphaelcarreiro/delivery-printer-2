@@ -87,13 +87,7 @@ const Home: React.FC = () => {
 
   function handleClick() {
     window.electron
-      .rawPrint(
-        `<html>
-        <body>
-          <h1>Hello</h1>
-        </body>
-      </html>`
-      )
+      .rawPrint(`http://localhost:8000/orders/0f16cb13-4212-4253-a47e-b0142aefaccc/print`)
       .catch(err => console.error(err));
   }
 

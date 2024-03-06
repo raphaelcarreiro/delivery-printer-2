@@ -14,13 +14,17 @@ import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
 import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
-import fs from 'fs';
 
 class AppUpdater {
   constructor() {
     log.transports.file.level = 'info';
+
     autoUpdater.logger = log;
-    autoUpdater.checkForUpdatesAndNotify();
+
+    autoUpdater.checkForUpdatesAndNotify({
+      body: 'Feche a aplicação e espere alguns segundos para aplicar a atualização',
+      title: 'Nova versão disponível',
+    });
   }
 }
 
@@ -100,7 +104,6 @@ const createWindow = async () => {
   const menuBuilder = new MenuBuilder(mainWindow);
   menuBuilder.buildMenu();
 
-  // Open urls in the user's browser
   mainWindow.webContents.setWindowOpenHandler(edata => {
     shell.openExternal(edata.url);
     return { action: 'deny' };
@@ -136,7 +139,7 @@ ipcMain.handle('print', (event, deviceName?: string) => {
   });
 });
 
-ipcMain.handle('rawPrint', (event, content: string, deviceName?: string) => {
+ipcMain.handle('rawPrint', (event, url: string, deviceName?: string) => {
   console.log('raw print');
 
   return new Promise((resolve, reject) => {
@@ -144,42 +147,39 @@ ipcMain.handle('rawPrint', (event, content: string, deviceName?: string) => {
       show: false,
     });
 
-    fs.writeFileSync(path.join(__dirname, 'print.html'), content);
-
-    win.loadURL('file://' + __dirname + '/print.html').then(() => {
-      win.webContents.print(
-        {
-          silent: true,
-          deviceName,
-          color: false,
-          collate: false,
-          copies: 1,
-          margins: {
-            marginType: 'none',
+    win
+      .loadURL(url)
+      .then(() => {
+        win.webContents.print(
+          {
+            silent: true,
+            deviceName,
+            color: false,
+            collate: false,
+            copies: 1,
+            margins: {
+              marginType: 'none',
+            },
           },
-        },
-        (success, reason) => {
-          win.close();
+          (success, reason) => {
+            win.close();
 
-          if (success) {
-            resolve(true);
-            return;
+            if (success) {
+              resolve(true);
+              return;
+            }
+
+            reject(reason);
           }
-
-          reject(reason);
-        }
-      );
-    });
+        );
+      })
+      .catch(err => {
+        reject(err);
+      });
   });
 });
 
-/**
- * Add event listeners...
- */
-
 app.on('window-all-closed', () => {
-  // Respect the OSX convention of having the application in memory even
-  // after all windows have been closed
   if (process.platform !== 'darwin') {
     app.quit();
   }
@@ -190,8 +190,6 @@ app
   .then(() => {
     createWindow();
     app.on('activate', () => {
-      // On macOS it's common to re-create a window in the app when the
-      // dock icon is clicked and there are no other windows open.
       if (mainWindow === null) createWindow();
     });
   })
