@@ -9,12 +9,6 @@ import { useFormarOrder } from 'renderer/hooks/useFormatOrder';
 import { useSocket } from 'renderer/hooks/useSocket';
 import InsideLoading from '../loading/InsideLoading';
 import { BoardControlMovement } from 'renderer/types/boardControlMovement';
-import ApprovedOrderSplittedByProduct from '../printing-layouts/ApprovedOrderSplittedByProduct';
-import DispatchedOrderOnly from '../printing-layouts/DispatchedOrderOnly';
-import ApprovedBoardOrder from '../printing-layouts/ApprovedBoardOrder';
-import ApprovedOrder from '../printing-layouts/ApprovedOrder';
-import DispatchedOrder from '../printing-layouts/DispatchedOrder';
-import BoardBilling from '../printing-layouts/board-billing/BoardBilling';
 import { Button } from '@material-ui/core';
 
 const Home: React.FC = () => {
@@ -25,14 +19,21 @@ const Home: React.FC = () => {
   const auth = useAuth();
   const formatOrder = useFormarOrder();
   const [boardMovement, setBoardMovement] = useState<BoardControlMovement | null>(null);
-  const [socket, wsConnected] = useSocket(setOrders, setShipment, setBoardMovement);
+
+  const print = useCallback((uuid: string) => {
+    window.electron
+      .rawPrint(`http://localhost:8000/orders/${uuid}/print-created`)
+      .then(() => {})
+      .catch(err => console.error(err));
+  }, []);
+
+  const [socket, wsConnected] = useSocket(print);
 
   useEffect(() => {
     async function getOrders() {
       try {
         const response = await api.get('/orders/print/list');
-        const formattedOrders = response.data.map((order: OrderData) => formatOrder(order));
-        setOrders(state => (state.length > 0 ? state : formattedOrders));
+        response.data.forEach((order: OrderData) => print(order.uuid));
       } catch (err) {
         console.log(err);
       }
@@ -43,36 +44,19 @@ const Home: React.FC = () => {
     return () => {
       clearInterval(timer);
     };
-  }, [formatOrder]);
+  }, [print]);
 
   useEffect(() => {
-    if (orders.length > 0) {
-      const tp = orders.find(order => !order.printed);
+    const tp = orders.find(order => !order.printed);
 
-      if (!tp) {
-        setOrders([]);
-        setToPrint(null);
-        return;
-      }
-
-      setToPrint(tp);
-    }
-  }, [orders]);
-
-  const handleClose = useCallback(() => {
-    if (!toPrint) {
+    if (!tp) {
+      setOrders([]);
+      setToPrint(null);
       return;
     }
 
-    setOrders(state =>
-      state.map(order => {
-        if (order.id === toPrint.id) {
-          order.printed = true;
-        }
-        return order;
-      })
-    );
-  }, [toPrint]);
+    setToPrint(tp);
+  }, [orders]);
 
   function handleLogout() {
     auth.logout().then(() => {
@@ -87,7 +71,8 @@ const Home: React.FC = () => {
 
   function handleClick() {
     window.electron
-      .rawPrint(`http://localhost:8000/orders/0f16cb13-4212-4253-a47e-b0142aefaccc/print`)
+      .rawPrint(`http://localhost:8000/orders/0f16cb13-4212-4253-a47e-b0142aefaccc/print-created`)
+      .then(() => {})
       .catch(err => console.error(err));
   }
 
@@ -98,23 +83,8 @@ const Home: React.FC = () => {
           imprimir
         </Button>
       </div>
-      {toPrint ? (
-        restaurant?.configs.print_by_product ? (
-          <ApprovedOrderSplittedByProduct handleClose={handleClose} data={toPrint} />
-        ) : toPrint.board_movement_id ? (
-          <ApprovedBoardOrder handleClose={handleClose} data={toPrint} />
-        ) : restaurant?.configs.print_only_shipment ? (
-          <DispatchedOrderOnly data={toPrint} handleClose={handleClose} />
-        ) : (
-          <ApprovedOrder handleClose={handleClose} data={toPrint} />
-        )
-      ) : shipment ? (
-        <DispatchedOrder data={shipment} handleClose={() => setShipment(null)} />
-      ) : boardMovement ? (
-        <BoardBilling movement={boardMovement} handleClose={() => setBoardMovement(null)} />
-      ) : (
-        <Status wsConnected={wsConnected} handleLogout={handleLogout} />
-      )}
+
+      <Status wsConnected={wsConnected} handleLogout={handleLogout} />
     </>
   );
 };

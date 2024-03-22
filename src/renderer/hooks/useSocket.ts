@@ -1,6 +1,5 @@
 import constants from 'renderer/constants/constants';
-import { Dispatch, SetStateAction, useEffect, useState } from 'react';
-import { useFormarOrder } from './useFormatOrder';
+import { useEffect, useState } from 'react';
 import { Socket, io } from 'socket.io-client';
 import { useSelector } from 'renderer/store/selector';
 import { useDispatch } from 'react-redux';
@@ -14,12 +13,7 @@ type UseSocket = [Socket, boolean];
 
 let timer: NodeJS.Timeout;
 
-export function useSocket(
-  setOrders: Dispatch<SetStateAction<OrderData[]>>,
-  setShipment: Dispatch<SetStateAction<OrderData | null>>,
-  setBoardMovement: Dispatch<SetStateAction<BoardControlMovement | null>>
-): UseSocket {
-  const formatOrder = useFormarOrder();
+export function useSocket(print: (orderId: string) => void): UseSocket {
   const [connected, setConnected] = useState(socket.connected);
   const restaurant = useSelector(state => state.restaurant);
   const dispatch = useDispatch();
@@ -34,35 +28,15 @@ export function useSocket(
     });
 
     socket.on('stored', (order: OrderData) => {
-      const formattedOrder = formatOrder(order);
-
-      setOrders(state => {
-        const exist = state.some(item => item.id === order.id);
-
-        if (exist) {
-          return state;
-        }
-
-        return [...state, formattedOrder];
-      });
+      print(order.uuid);
     });
 
     socket.on('printOrder', (order: OrderData) => {
-      const formattedOrder = formatOrder(order);
-
-      setOrders(state => {
-        const exist = state.some(item => item.id === order.id);
-
-        if (exist) {
-          return state;
-        }
-
-        return [...state, formattedOrder];
-      });
+      print(order.uuid);
     });
 
     socket.on('print_board_billing', (movement: BoardControlMovement) => {
-      setBoardMovement(movement);
+      // setBoardMovement(movement);
     });
 
     socket.on('handleRestaurantState', (response: { isOpen: boolean }) => {
@@ -80,13 +54,12 @@ export function useSocket(
       socket.off('stored');
       socket.off('print_board_billing');
     };
-  }, [restaurant, dispatch, formatOrder, setOrders, setBoardMovement]);
+  }, [restaurant, dispatch, print]);
 
   useEffect(() => {
     if (!restaurant?.configs?.print_only_shipment) {
       socket.on('printShipment', (order: OrderData) => {
-        const formattedOrder = formatOrder(order);
-        setShipment(formattedOrder);
+        print(order.uuid);
       });
     }
 
@@ -102,7 +75,7 @@ export function useSocket(
     return () => {
       clearTimeout(timer);
     };
-  }, [connected, restaurant, setShipment, formatOrder]);
+  }, [connected, restaurant, print]);
 
   return [socket, connected];
 }

@@ -96,6 +96,7 @@ interface AdminUser {
 
 export interface OrderData {
   id: number;
+  uuid: string;
   formattedId: string;
   formattedTotal: string;
   formattedChange: string;
