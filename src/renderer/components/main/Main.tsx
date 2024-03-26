@@ -1,29 +1,26 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { useSelector } from 'renderer/store/selector';
 import { useAuth } from 'renderer/providers/auth';
 import { api } from 'renderer/services/api';
 import Status from '../status/Status';
 import { history } from 'renderer/services/history';
 import { OrderData } from 'renderer/types/order';
-import { useFormarOrder } from 'renderer/hooks/useFormatOrder';
 import { useSocket } from 'renderer/hooks/useSocket';
 import InsideLoading from '../loading/InsideLoading';
-import { BoardControlMovement } from 'renderer/types/boardControlMovement';
-import { Button } from '@material-ui/core';
+
+export enum PrintingLayoutOptions {
+  created = 'print-created',
+  dispatched = 'print-dispatched',
+  onlyDispatched = 'print-dispatched-v2',
+}
 
 const Home: React.FC = () => {
   const [orders, setOrders] = useState<OrderData[]>([]);
-  const [toPrint, setToPrint] = useState<OrderData | null>(null);
-  const [shipment, setShipment] = useState<OrderData | null>(null);
-  const restaurant = useSelector(state => state.restaurant);
   const auth = useAuth();
-  const formatOrder = useFormarOrder();
-  const [boardMovement, setBoardMovement] = useState<BoardControlMovement | null>(null);
 
-  const print = useCallback((uuid: string) => {
-    window.electron
-      .rawPrint(`http://localhost:8000/orders/${uuid}/print-created`)
-      .then(() => {})
+  const print = useCallback((uuid: string, layout: PrintingLayoutOptions) => {
+    return window.electron
+      .rawPrint(`http://localhost:8000/orders/${uuid}/${layout}`)
+      .then(() => uuid)
       .catch(err => console.error(err));
   }, []);
 
@@ -33,7 +30,12 @@ const Home: React.FC = () => {
     async function getOrders() {
       try {
         const response = await api.get('/orders/print/list');
-        response.data.forEach((order: OrderData) => print(order.uuid));
+
+        const ids = await Promise.all(
+          response.data.map((order: OrderData) => print(order.uuid, PrintingLayoutOptions.created))
+        );
+
+        await Promise.all(ids.map(id => api.post(`/orders/printed`, { order_id: id })));
       } catch (err) {
         console.log(err);
       }
@@ -46,18 +48,6 @@ const Home: React.FC = () => {
     };
   }, [print]);
 
-  useEffect(() => {
-    const tp = orders.find(order => !order.printed);
-
-    if (!tp) {
-      setOrders([]);
-      setToPrint(null);
-      return;
-    }
-
-    setToPrint(tp);
-  }, [orders]);
-
   function handleLogout() {
     auth.logout().then(() => {
       socket.disconnect();
@@ -69,21 +59,8 @@ const Home: React.FC = () => {
     return <InsideLoading />;
   }
 
-  function handleClick() {
-    window.electron
-      .rawPrint(`http://localhost:8000/orders/0f16cb13-4212-4253-a47e-b0142aefaccc/print-created`)
-      .then(() => {})
-      .catch(err => console.error(err));
-  }
-
   return (
     <>
-      <div style={{ padding: 20 }}>
-        <Button onClick={handleClick} variant="contained" color="primary">
-          imprimir
-        </Button>
-      </div>
-
       <Status wsConnected={wsConnected} handleLogout={handleLogout} />
     </>
   );

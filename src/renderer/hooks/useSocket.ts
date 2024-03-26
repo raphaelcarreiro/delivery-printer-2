@@ -6,6 +6,7 @@ import { useDispatch } from 'react-redux';
 import { OrderData } from 'renderer/types/order';
 import { setRestaurantIsOpen } from 'renderer/store/modules/restaurant/actions';
 import { BoardControlMovement } from 'renderer/types/boardControlMovement';
+import { PrintingLayoutOptions } from 'renderer/components/main/Main';
 
 const socket: Socket = io(constants.WS_BASE_URL);
 
@@ -13,7 +14,7 @@ type UseSocket = [Socket, boolean];
 
 let timer: NodeJS.Timeout;
 
-export function useSocket(print: (orderId: string) => void): UseSocket {
+export function useSocket(print: (orderId: string, layout: PrintingLayoutOptions) => void): UseSocket {
   const [connected, setConnected] = useState(socket.connected);
   const restaurant = useSelector(state => state.restaurant);
   const dispatch = useDispatch();
@@ -28,11 +29,11 @@ export function useSocket(print: (orderId: string) => void): UseSocket {
     });
 
     socket.on('stored', (order: OrderData) => {
-      print(order.uuid);
+      print(order.uuid, PrintingLayoutOptions.created);
     });
 
     socket.on('printOrder', (order: OrderData) => {
-      print(order.uuid);
+      print(order.uuid, PrintingLayoutOptions.created);
     });
 
     socket.on('print_board_billing', (movement: BoardControlMovement) => {
@@ -47,6 +48,10 @@ export function useSocket(print: (orderId: string) => void): UseSocket {
       socket.emit('printer_ping', restaurant?.id);
     });
 
+    socket.on('printShipment', (order: OrderData) => {
+      print(order.uuid, PrintingLayoutOptions.dispatched);
+    });
+
     return () => {
       socket.off('handleRestaurantState');
       socket.off('printShipment');
@@ -57,12 +62,6 @@ export function useSocket(print: (orderId: string) => void): UseSocket {
   }, [restaurant, dispatch, print]);
 
   useEffect(() => {
-    if (!restaurant?.configs?.print_only_shipment) {
-      socket.on('printShipment', (order: OrderData) => {
-        print(order.uuid);
-      });
-    }
-
     if (restaurant && connected) {
       socket.emit('register', restaurant.id);
       socket.emit('printer_ping', restaurant.id);
