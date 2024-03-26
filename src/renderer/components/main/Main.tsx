@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useCallback } from 'react';
 import { useAuth } from 'renderer/providers/auth';
 import { api } from 'renderer/services/api';
 import Status from '../status/Status';
@@ -14,7 +14,6 @@ export enum PrintingLayoutOptions {
 }
 
 const Home: React.FC = () => {
-  const [orders, setOrders] = useState<OrderData[]>([]);
   const auth = useAuth();
 
   const print = useCallback((uuid: string, layout: PrintingLayoutOptions) => {
@@ -35,7 +34,7 @@ const Home: React.FC = () => {
           response.data.map((order: OrderData) => print(order.uuid, PrintingLayoutOptions.created))
         );
 
-        await Promise.all(ids.map(id => api.post(`/orders/printed`, { order_id: id })));
+        await Promise.all(ids.map(id => api.patch(`/orders/${id}/printed`)));
       } catch (err) {
         console.log(err);
       }
