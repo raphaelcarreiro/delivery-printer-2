@@ -1,51 +1,19 @@
-import React, { useEffect, useCallback } from 'react';
+import React from 'react';
 import { useAuth } from 'renderer/providers/auth';
-import { api } from 'renderer/services/api';
 import Status from '../status/Status';
 import { history } from 'renderer/services/history';
-import { OrderData } from 'renderer/types/order';
 import { useSocket } from 'renderer/hooks/useSocket';
 import InsideLoading from '../loading/InsideLoading';
-
-export enum PrintingLayoutOptions {
-  created = 'print-created',
-  dispatched = 'print-dispatched',
-  onlyDispatched = 'print-dispatched-v2',
-}
+import { usePrintingOrder } from 'renderer/hooks/usePrintingOrder';
+import { usePrintingBoard } from 'renderer/hooks/usePrintingBoard';
 
 const Home: React.FC = () => {
   const auth = useAuth();
 
-  const print = useCallback((uuid: string, layout: PrintingLayoutOptions) => {
-    return window.electron
-      .rawPrint(`http://localhost:8000/orders/${uuid}/${layout}`)
-      .then(() => uuid)
-      .catch(err => console.error(err));
-  }, []);
+  const [socket, wsConnected] = useSocket();
 
-  const [socket, wsConnected] = useSocket(print);
-
-  useEffect(() => {
-    async function getOrders() {
-      try {
-        const response = await api.get('/orders/print/list');
-
-        const ids = await Promise.all(
-          response.data.map((order: OrderData) => print(order.uuid, PrintingLayoutOptions.created))
-        );
-
-        await Promise.all(ids.map(id => api.patch(`/orders/${id}/printed`)));
-      } catch (err) {
-        console.log(err);
-      }
-    }
-
-    const timer = setInterval(getOrders, 18000);
-
-    return () => {
-      clearInterval(timer);
-    };
-  }, [print]);
+  usePrintingOrder(socket);
+  usePrintingBoard(socket);
 
   function handleLogout() {
     auth.logout().then(() => {

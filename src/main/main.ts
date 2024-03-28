@@ -144,7 +144,7 @@ ipcMain.handle('rawPrint', (event, url: string, deviceName?: string) => {
 
   return new Promise((resolve, reject) => {
     const win = new BrowserWindow({
-      show: false,
+      show: true,
     });
 
     win
