@@ -1,10 +1,4 @@
-/* eslint global-require: off, no-console: off, promise/always-return: off */
-
 /**
- * This module executes inside of electron's main process. You can start
- * electron renderer process from here and communicate with the other processes
- * through IPC.
- *
  * When running `npm run build` or `npm run build:main`, this file is compiled to
  * `./src/main.js` using webpack. This gives us some performance wins.
  */
@@ -14,6 +8,7 @@ import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
 import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
+import fs from 'fs';
 
 class AppUpdater {
   constructor() {
@@ -90,6 +85,7 @@ const createWindow = async () => {
     if (!mainWindow) {
       throw new Error('"mainWindow" is not defined');
     }
+
     if (process.env.START_MINIMIZED) {
       mainWindow.minimize();
     } else {
@@ -109,73 +105,46 @@ const createWindow = async () => {
     return { action: 'deny' };
   });
 
-  // Remove this if your app does not use auto updates
-  // eslint-disable-next-line
-  new AppUpdater();
+  return new AppUpdater();
 };
 
-ipcMain.handle('print', (event, deviceName?: string) => {
-  return new Promise((resolve, reject) => {
-    mainWindow?.webContents.print(
+ipcMain.handle('rawPrint', async (event, { content, copies, deviceName, id }) => {
+  const win = new BrowserWindow({ show: false });
+
+  const file = path.join(__dirname, '..', '..', `${id}.print.html`);
+
+  fs.writeFileSync(file, content);
+
+  const printers = await win.webContents.getPrintersAsync();
+
+  const printer = printers.find(printer => printer.name === deviceName);
+
+  await win.webContents.loadFile(file);
+
+  await new Promise((resolve, reject) => {
+    win.webContents.print(
       {
-        deviceName,
+        silent: true,
+        deviceName: printer ? printer.name : undefined,
         color: false,
         collate: false,
-        copies: 1,
-        silent: true,
+        copies,
         margins: {
           marginType: 'none',
         },
       },
       (success, reason) => {
+        fs.rmSync(file);
+        win.close();
+
         if (success) {
-          resolve(true);
+          resolve(success);
           return;
         }
 
         reject(reason);
       }
     );
-  });
-});
-
-ipcMain.handle('rawPrint', (event, url: string, deviceName?: string) => {
-  console.log('raw print');
-
-  return new Promise((resolve, reject) => {
-    const win = new BrowserWindow({
-      show: true,
-    });
-
-    win
-      .loadURL(url)
-      .then(() => {
-        win.webContents.print(
-          {
-            silent: true,
-            deviceName,
-            color: false,
-            collate: false,
-            copies: 1,
-            margins: {
-              marginType: 'none',
-            },
-          },
-          (success, reason) => {
-            win.close();
-
-            if (success) {
-              resolve(true);
-              return;
-            }
-
-            reject(reason);
-          }
-        );
-      })
-      .catch(err => {
-        reject(err);
-      });
   });
 });
 

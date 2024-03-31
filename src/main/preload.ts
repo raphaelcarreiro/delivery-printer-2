@@ -2,6 +2,13 @@ import { contextBridge, ipcRenderer, IpcRendererEvent } from 'electron';
 
 export type Channels = 'ipc-example';
 
+type RawPrint = {
+  content: string;
+  copies: number;
+  deviceName: string | null;
+  id: string;
+};
+
 const electronHandler = {
   ipcRenderer: {
     sendMessage(channel: Channels, args: unknown[]) {
@@ -20,8 +27,7 @@ const electronHandler = {
     },
   },
   print: (deviceName?: string): Promise<boolean> => ipcRenderer.invoke('print', deviceName),
-  rawPrint: (content: string, deviceName?: string): Promise<void> =>
-    ipcRenderer.invoke('rawPrint', content, deviceName),
+  rawPrint: (payload: RawPrint): Promise<void> => ipcRenderer.invoke('rawPrint', payload),
 };
 
 contextBridge.exposeInMainWorld('electron', electronHandler);
