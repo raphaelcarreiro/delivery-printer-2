@@ -5,7 +5,7 @@ import constants from 'renderer/constants/constants';
 import { api } from 'renderer/services/api';
 import { uuidv4 } from 'renderer/helpers/uuid';
 
-type PrintingLayoutOptions = 'billing' | 'content';
+type PrintingLayoutOptions = 'billing-content' | 'content';
 
 type Response = {
   content: string;
@@ -35,7 +35,7 @@ export function usePrintingBoard(socket: Socket): void {
 
   useEffect(() => {
     socket.on('print_board_billing', (session: BoardControlMovement) => {
-      print(session, 'billing');
+      print(session, 'billing-content');
     });
 
     socket.on('print_board', (session: BoardControlMovement) => {

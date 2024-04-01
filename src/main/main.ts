@@ -9,6 +9,7 @@ import log from 'electron-log';
 import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
 import fs from 'fs';
+import os from 'os';
 
 class AppUpdater {
   constructor() {
@@ -111,7 +112,7 @@ const createWindow = async () => {
 ipcMain.handle('rawPrint', async (event, { content, copies, deviceName, id }) => {
   const win = new BrowserWindow({ show: false });
 
-  const file = path.join(__dirname, '..', '..', `${id}.print.html`);
+  const file = path.join(os.tmpdir(), `${id}.print.html`);
 
   fs.writeFileSync(file, content);
 
@@ -125,7 +126,7 @@ ipcMain.handle('rawPrint', async (event, { content, copies, deviceName, id }) =>
     win.webContents.print(
       {
         silent: true,
-        deviceName: printer ? printer.name : undefined,
+        deviceName: printer?.name,
         color: false,
         collate: false,
         copies,
@@ -134,10 +135,10 @@ ipcMain.handle('rawPrint', async (event, { content, copies, deviceName, id }) =>
         },
       },
       (success, reason) => {
-        fs.rmSync(file);
         win.close();
 
         if (success) {
+          fs.rmSync(file);
           resolve(success);
           return;
         }
