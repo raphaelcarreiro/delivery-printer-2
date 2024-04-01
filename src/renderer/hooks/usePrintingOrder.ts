@@ -37,7 +37,7 @@ export function usePrintingOrder(socket: Socket): void {
 
   useEffect(() => {
     socket.on('stored', (order: OrderData) => {
-      print(order.uuid, 'print-created');
+      // print(order.uuid, 'print-created');
     });
 
     socket.on('printOrder', (order: OrderData) => {

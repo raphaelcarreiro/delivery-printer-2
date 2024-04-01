@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { Socket, io } from 'socket.io-client';
 import { useSelector } from 'renderer/store/selector';
 import { useDispatch } from 'react-redux';
+import { setRestaurantIsOpen } from 'renderer/store/modules/restaurant/actions';
 
 const socket: Socket = io(constants.WS_BASE_URL);
 
@@ -23,6 +24,19 @@ export function useSocket(): UseSocket {
     socket.on('disconnect', () => {
       setConnected(false);
     });
+
+    socket.on('handleRestaurantState', (response: { isOpen: boolean }) => {
+      dispatch(setRestaurantIsOpen(response.isOpen));
+    });
+
+    socket.on('admin_ping', () => {
+      socket.emit('printer_ping', restaurant?.id);
+    });
+
+    return () => {
+      socket.off('handleRestaurantState');
+      socket.off('admin_ping');
+    };
   }, [restaurant, dispatch]);
 
   useEffect(() => {
