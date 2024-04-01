@@ -3,13 +3,12 @@
  * `./src/main.js` using webpack. This gives us some performance wins.
  */
 import path from 'path';
-import { app, BrowserWindow, shell, ipcMain } from 'electron';
+import { app, BrowserWindow, shell, ipcMain, Tray, Menu } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
 import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
-import fs from 'fs';
-import os from 'os';
+import { onRawPrint } from './events/onRawPrint';
 
 class AppUpdater {
   constructor() {
@@ -25,6 +24,8 @@ class AppUpdater {
 }
 
 let mainWindow: BrowserWindow | null = null;
+let isQuiting;
+let tray: Tray;
 
 ipcMain.on('ipc-example', async (event, arg) => {
   const msgTemplate = (pingPong: string) => `IPC test: ${pingPong}`;
@@ -94,6 +95,20 @@ const createWindow = async () => {
     }
   });
 
+  mainWindow.on('minimize', function (event) {
+    event.preventDefault();
+    mainWindow?.hide();
+  });
+
+  mainWindow.on('close', function (event) {
+    if (!isQuiting) {
+      event.preventDefault();
+      mainWindow?.hide();
+    }
+
+    return false;
+  });
+
   mainWindow.on('closed', () => {
     mainWindow = null;
   });
@@ -109,45 +124,47 @@ const createWindow = async () => {
   return new AppUpdater();
 };
 
-ipcMain.handle('rawPrint', async (event, { content, copies, deviceName, id }) => {
-  const win = new BrowserWindow({ show: false });
+const createTray = () => {
+  const RESOURCES_PATH = app.isPackaged
+    ? path.join(process.resourcesPath, 'assets')
+    : path.join(__dirname, '../../assets');
 
-  const file = path.join(os.tmpdir(), `${id}.print.html`);
+  const getAssetPath = (...paths: string[]): string => {
+    return path.join(RESOURCES_PATH, ...paths);
+  };
 
-  fs.writeFileSync(file, content);
+  tray = new Tray(getAssetPath('icon.png'));
 
-  const printers = await win.webContents.getPrintersAsync();
+  tray.on('double-click', () => {
+    mainWindow?.show();
+  });
 
-  const printer = printers.find(printer => printer.name === deviceName);
-
-  await win.webContents.loadFile(file);
-
-  await new Promise((resolve, reject) => {
-    win.webContents.print(
+  tray.setContextMenu(
+    Menu.buildFromTemplate([
       {
-        silent: true,
-        deviceName: printer?.name,
-        color: false,
-        collate: false,
-        copies,
-        margins: {
-          marginType: 'none',
+        label: '    Exibir',
+        click: function () {
+          mainWindow?.show();
         },
       },
-      (success, reason) => {
-        win.close();
+      {
+        label: '    Minimizar para a bandeja',
+        click: () => {
+          mainWindow?.hide();
+        },
+      },
+      {
+        label: '    Fechar',
+        click: () => {
+          isQuiting = true;
+          app.quit();
+        },
+      },
+    ])
+  );
+};
 
-        if (success) {
-          fs.rmSync(file);
-          resolve(success);
-          return;
-        }
-
-        reject(reason);
-      }
-    );
-  });
-});
+ipcMain.handle('rawPrint', onRawPrint);
 
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
@@ -159,8 +176,13 @@ app
   .whenReady()
   .then(() => {
     createWindow();
+    createTray();
+
     app.on('activate', () => {
-      if (mainWindow === null) createWindow();
+      if (mainWindow === null) {
+        createWindow();
+        createTray();
+      }
     });
   })
   .catch(console.log);
