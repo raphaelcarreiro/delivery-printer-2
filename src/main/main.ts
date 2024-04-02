@@ -5,7 +5,7 @@
 import { app, ipcMain } from 'electron';
 import { onRawPrint } from './events/onRawPrint';
 import { createTray } from './tray';
-import { createMainWindow } from './mainWindow';
+import { createMainWindow } from './window';
 
 ipcMain.on('ipc-example', async (event, arg) => {
   const msgTemplate = (pingPong: string) => `IPC test: ${pingPong}`;
