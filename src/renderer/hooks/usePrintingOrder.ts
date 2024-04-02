@@ -2,7 +2,7 @@ import { useCallback, useEffect } from 'react';
 import { Socket } from 'socket.io-client';
 import { OrderData } from 'renderer/types/order';
 import { api } from 'renderer/services/api';
-import constants from 'renderer/constants/constants';
+import constants from 'constants/constants';
 import { uuidv4 } from 'renderer/helpers/uuid';
 
 type PrintingLayoutOptions = 'print-created' | 'print-dispatched';

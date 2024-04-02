@@ -1,5 +1,5 @@
 import axios from 'axios';
-import constants from 'renderer/constants/constants';
+import constants from 'constants/constants';
 
 export async function refreshTokenRequest(): Promise<string> {
   const api = axios.create({

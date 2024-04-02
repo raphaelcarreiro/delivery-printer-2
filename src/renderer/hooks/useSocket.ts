@@ -1,4 +1,4 @@
-import constants from 'renderer/constants/constants';
+import constants from 'constants/constants';
 import { useEffect, useState } from 'react';
 import { Socket, io } from 'socket.io-client';
 import { useSelector } from 'renderer/store/selector';
@@ -47,6 +47,8 @@ export function useSocket(): UseSocket {
       timer = setInterval(() => {
         socket.emit('printer_ping', restaurant.id);
       }, 30000);
+
+      window.electron.socketRegister(restaurant.id);
     }
 
     return () => {

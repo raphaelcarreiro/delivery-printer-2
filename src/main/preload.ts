@@ -27,7 +27,10 @@ const electronHandler = {
     },
   },
   print: (deviceName?: string): Promise<boolean> => ipcRenderer.invoke('print', deviceName),
+
   rawPrint: (payload: RawPrint): Promise<void> => ipcRenderer.invoke('rawPrint', payload),
+
+  socketRegister: (restaurantId: number): Promise<void> => ipcRenderer.invoke('socket-register', restaurantId),
 };
 
 contextBridge.exposeInMainWorld('electron', electronHandler);

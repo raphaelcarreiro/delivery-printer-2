@@ -1,7 +1,7 @@
 import { useCallback, useEffect } from 'react';
 import { Socket } from 'socket.io-client';
 import { BoardControlMovement } from 'renderer/types/boardControlMovement';
-import constants from 'renderer/constants/constants';
+import constants from 'constants/constants';
 import { api } from 'renderer/services/api';
 import { uuidv4 } from 'renderer/helpers/uuid';
 

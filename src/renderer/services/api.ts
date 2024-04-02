@@ -1,5 +1,5 @@
 import axios, { CancelTokenSource } from 'axios';
-import constants from 'renderer/constants/constants';
+import constants from 'constants/constants';
 import { apiErrorInterceptor } from './apiErrorInterceptor';
 
 const api = axios.create({
