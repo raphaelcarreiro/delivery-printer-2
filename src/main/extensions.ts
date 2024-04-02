@@ -2,24 +2,35 @@ import devtoolsInstaller, { REACT_DEVELOPER_TOOLS } from 'electron-devtools-inst
 import electronDebug from 'electron-debug';
 import sourceMapSupport from 'source-map-support';
 
-export async function installExtensions() {
-  const isDebug = process.env.NODE_ENV === 'development' || process.env.DEBUG_PROD === 'true';
+export class Extensions {
+  private isDebug: boolean;
 
-  if (isDebug) {
-    devtoolsInstaller([REACT_DEVELOPER_TOOLS], {
-      forceDownload: !!process.env.UPGRADE_EXTENSIONS,
-    }).catch(console.log);
+  constructor() {
+    this.isDebug = process.env.NODE_ENV === 'development' || process.env.DEBUG_PROD === 'true';
   }
 
-  if (!isDebug) {
-    sourceMapSupport.install();
+  async install() {
+    this.devTools();
+    this.sourceMap();
   }
 
-  if (isDebug) {
+  private devTools() {
+    if (this.isDebug) {
+      devtoolsInstaller([REACT_DEVELOPER_TOOLS], {
+        forceDownload: !!process.env.UPGRADE_EXTENSIONS,
+      }).catch(console.log);
+    }
+
     electronDebug({
       devToolsMode: 'bottom',
       isEnabled: true,
-      showDevTools: true,
+      showDevTools: false,
     });
+  }
+
+  private sourceMap() {
+    if (!this.isDebug) {
+      sourceMapSupport.install();
+    }
   }
 }

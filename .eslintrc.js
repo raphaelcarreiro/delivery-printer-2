@@ -36,6 +36,7 @@ module.exports = {
     'import/no-unresolved': 'off',
     'import/no-import-module-exports': 'off',
     'react/function-component-definition': 'off',
+    'no-useless-constructor': 'off',
   },
   settings: {
     'import/resolver': {

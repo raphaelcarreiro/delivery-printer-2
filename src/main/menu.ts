@@ -6,11 +6,7 @@ interface DarwinMenuItemConstructorOptions extends MenuItemConstructorOptions {
 }
 
 export default class MenuBuilder {
-  mainWindow: BrowserWindow;
-
-  constructor(mainWindow: BrowserWindow) {
-    this.mainWindow = mainWindow;
-  }
+  constructor(private mainWindow: BrowserWindow) {}
 
   buildMenu(): Menu {
     if (process.env.NODE_ENV === 'development' || process.env.DEBUG_PROD === 'true') {
@@ -25,7 +21,7 @@ export default class MenuBuilder {
     return menu;
   }
 
-  setupDevelopmentEnvironment(): void {
+  private setupDevelopmentEnvironment(): void {
     this.mainWindow.webContents.on('context-menu', (_, props) => {
       const { x, y } = props;
 

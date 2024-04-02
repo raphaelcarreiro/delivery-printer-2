@@ -18,7 +18,6 @@ export async function onRawPrint(event: IpcMainInvokeEvent, { content, copies, d
   fs.writeFileSync(file, content);
 
   const printers = await win.webContents.getPrintersAsync();
-
   const printer = printers.find(printer => printer.name === deviceName);
 
   await win.webContents.loadFile(file);

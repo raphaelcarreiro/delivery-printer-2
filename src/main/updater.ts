@@ -1,13 +1,19 @@
 import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
 
-export function updater() {
-  log.transports.file.level = 'info';
+export class AppUpdater {
+  private BODY = 'Feche a aplicação e espere alguns segundos para aplicar a atualização';
+  private TITLE = 'Nova versão disponível';
 
-  autoUpdater.logger = log;
+  constructor() {
+    log.transports.file.level = 'info';
+    autoUpdater.logger = log;
+  }
 
-  autoUpdater.checkForUpdatesAndNotify({
-    body: 'Feche a aplicação e espere alguns segundos para aplicar a atualização',
-    title: 'Nova versão disponível',
-  });
+  run() {
+    autoUpdater.checkForUpdatesAndNotify({
+      body: this.BODY,
+      title: this.TITLE,
+    });
+  }
 }
