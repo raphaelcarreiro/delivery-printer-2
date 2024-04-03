@@ -14,16 +14,14 @@ const styles = makeStyles({
     top: 0,
     left: 0,
     right: 0,
-    height: 40,
+    height: 50,
     background: 'white',
     userSelect: 'none',
     appRegion: 'drag',
-    padding: '10px 0 0 15px',
+    padding: '10px 0 0 18px',
     color: '#222',
     fontWeight: 300,
     fontSize: 14,
-    display: 'flex',
-    alignItems: 'center',
     gap: 7,
     '& > img': {
       width: 25,
@@ -55,7 +53,6 @@ const Home: React.FC = () => {
   return (
     <>
       <div className={classes.titleBar}>
-        <img src="https://admin.sgrande.delivery/logo192.png" alt="sgrande delivery" />
         <span>sgrande delivery printer</span>
       </div>
       <Status wsConnected={wsConnected} handleLogout={handleLogout} />

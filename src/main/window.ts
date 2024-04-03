@@ -21,7 +21,7 @@ export class MainWindowBuilder {
       titleBarOverlay: {
         color: 'white',
         symbolColor: '#222',
-        height: 40,
+        height: 50,
       },
     });
   }
