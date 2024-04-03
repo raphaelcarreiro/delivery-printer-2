@@ -5,5 +5,6 @@ export function onSecondInstance(window: BrowserWindow) {
     window.restore();
   }
 
+  window.show();
   window.focus();
 }
