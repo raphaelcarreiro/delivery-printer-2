@@ -6,7 +6,7 @@ import fs from 'fs';
 type Payload = {
   content: string;
   copies: number;
-  deviceName: string;
+  deviceName: string | null;
   id: string;
 };
 
@@ -18,7 +18,7 @@ export async function onRawPrint(event: IpcMainInvokeEvent, { content, copies, d
   fs.writeFileSync(file, content);
 
   const printers = await win.webContents.getPrintersAsync();
-  const printer = printers.find(printer => printer.name === deviceName);
+  const printer = printers.find(printer => printer.name.toLowerCase() === deviceName?.toLowerCase());
 
   await win.webContents.loadFile(file);
 

@@ -15,8 +15,14 @@ export class MainWindowBuilder {
       show: false,
       width: 1024,
       height: 728,
-      icon: getAssetPath(app, 'icon.png'),
+      icon: getAssetPath(app, 'icon.ico'),
       webPreferences: this.getWindowWebPreferences(),
+      titleBarStyle: 'hidden',
+      titleBarOverlay: {
+        color: 'white',
+        symbolColor: '#222',
+        height: 40,
+      },
     });
   }
 

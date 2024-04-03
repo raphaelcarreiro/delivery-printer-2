@@ -119,7 +119,7 @@ const Status: React.FC<StatusProps> = ({ wsConnected, handleLogout }) => {
       )}
       <div className={classes.version}>
         <Typography variant="caption" color="textSecondary">
-          sgrande delivery printer - v{packageJson.version} - ia32
+          v{packageJson.version} - ia32
         </Typography>
       </div>
     </div>
