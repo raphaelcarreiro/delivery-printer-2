@@ -4,6 +4,7 @@ import { Socket, io } from 'socket.io-client';
 import { useSelector } from 'renderer/store/selector';
 import { useDispatch } from 'react-redux';
 import { setRestaurantIsOpen } from 'renderer/store/modules/restaurant/actions';
+import packageJson from '../../../package.json';
 
 const socket: Socket = io(constants.WS_BASE_URL);
 
@@ -45,7 +46,10 @@ export function useSocket(): UseSocket {
       socket.emit('printer_ping', restaurant.id);
 
       timer = setInterval(() => {
-        socket.emit('printer_ping', restaurant.id);
+        socket.emit('printer_ping', {
+          restaurant_id: restaurant.id,
+          version: packageJson.version,
+        });
       }, 30000);
 
       window.electron.socketRegister(restaurant.id);
