@@ -43,7 +43,10 @@ export function useSocket(): UseSocket {
   useEffect(() => {
     if (restaurant && connected) {
       socket.emit('register', restaurant.id);
-      socket.emit('printer_ping', restaurant.id);
+      socket.emit('printer_ping', {
+        restaurant_id: restaurant.id,
+        version: packageJson.version,
+      });
 
       timer = setInterval(() => {
         socket.emit('printer_ping', {
