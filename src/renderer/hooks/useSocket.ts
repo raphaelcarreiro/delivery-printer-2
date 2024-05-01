@@ -31,7 +31,10 @@ export function useSocket(): UseSocket {
     });
 
     socket.on('admin_ping', () => {
-      socket.emit('printer_ping', restaurant?.id);
+      socket.emit('printer_ping', {
+        restaurant_id: restaurant?.id,
+        version: packageJson.version,
+      });
     });
 
     return () => {
