@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Socket } from 'socket.io-client';
 import { OrderData } from 'renderer/types/order';
 import { api } from 'renderer/services/api';
@@ -13,27 +13,40 @@ type Response = {
   device_name: string | null;
 };
 
+type PrintOptions = {
+  validate: boolean;
+};
+
 export function usePrintingOrder(socket: Socket): void {
-  const print = useCallback(async (uuid: string, layout: PrintingLayoutOptions) => {
-    try {
-      const response = await api.get<Response[]>(`${constants.BASE_URL}orders/${uuid}/${layout}`);
+  const [printedIds, setPrintedIds] = useState<string[]>([]);
 
-      const promises = response.data.map(payload =>
-        window.electron.rawPrint({
-          content: payload.content,
-          copies: payload.copies,
-          deviceName: payload.device_name,
-          id: uuidv4(),
-        })
-      );
+  const print = useCallback(
+    async (uuid: string, layout: PrintingLayoutOptions, options?: PrintOptions) => {
+      if (options?.validate && printedIds.some(id => id === uuid)) {
+        return;
+      }
 
-      await Promise.all(promises);
+      try {
+        const response = await api.get<Response[]>(`${constants.BASE_URL}orders/${uuid}/${layout}`);
 
-      api.patch(`/orders/${uuid}/printed`);
-    } catch (err) {
-      console.error(err);
-    }
-  }, []);
+        const promises = response.data.map(payload =>
+          window.electron.rawPrint({
+            content: payload.content,
+            copies: payload.copies,
+            deviceName: payload.device_name,
+            id: uuidv4(),
+          })
+        );
+
+        await Promise.all(promises);
+
+        api.patch(`/orders/${uuid}/printed`).then(() => setPrintedIds(state => [...state, uuid]));
+      } catch (err) {
+        console.error(err);
+      }
+    },
+    [printedIds]
+  );
 
   useEffect(() => {
     socket.on('printOrder', (order: OrderData) => {
@@ -54,7 +67,7 @@ export function usePrintingOrder(socket: Socket): void {
     async function getOrders() {
       try {
         const response = await api.get<OrderData[]>('/orders/print/list');
-        await Promise.all(response.data.map(order => print(order.uuid, 'print-created')));
+        await Promise.all(response.data.map(order => print(order.uuid, 'print-created', { validate: true })));
       } catch (err) {
         console.log(err);
       }
