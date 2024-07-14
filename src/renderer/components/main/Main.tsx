@@ -36,7 +36,7 @@ const Home: React.FC = () => {
 
   const [socket, wsConnected] = useSocket();
 
-  usePrintingOrder(socket);
+  usePrintingOrder(socket, wsConnected);
   usePrintingBoard(socket);
 
   function handleLogout() {

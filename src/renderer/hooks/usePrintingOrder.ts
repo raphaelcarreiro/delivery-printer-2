@@ -17,7 +17,7 @@ type PrintOptions = {
   validate: boolean;
 };
 
-export function usePrintingOrder(socket: Socket): void {
+export function usePrintingOrder(socket: Socket, isConnected: boolean): void {
   const [printedIds, setPrintedIds] = useState<string[]>([]);
 
   const print = useCallback(
@@ -25,6 +25,8 @@ export function usePrintingOrder(socket: Socket): void {
       if (options?.validate && printedIds.some(id => id === uuid)) {
         return;
       }
+
+      setPrintedIds(state => [...state, uuid]);
 
       try {
         const response = await api.get<Response[]>(`${constants.BASE_URL}orders/${uuid}/${layout}`);
@@ -40,9 +42,10 @@ export function usePrintingOrder(socket: Socket): void {
 
         await Promise.all(promises);
 
-        api.patch(`/orders/${uuid}/printed`).then(() => setPrintedIds(state => [...state, uuid]));
+        api.patch(`/orders/${uuid}/printed`);
       } catch (err) {
         console.error(err);
+        setPrintedIds(state => state.filter(id => id !== uuid));
       }
     },
     [printedIds]
@@ -64,7 +67,7 @@ export function usePrintingOrder(socket: Socket): void {
   }, [print, socket]);
 
   useEffect(() => {
-    async function getOrders() {
+    async function findOrders() {
       try {
         const response = await api.get<OrderData[]>('/orders/print/list');
         await Promise.all(response.data.map(order => print(order.uuid, 'print-created', { validate: true })));
@@ -73,10 +76,8 @@ export function usePrintingOrder(socket: Socket): void {
       }
     }
 
-    const timer = setInterval(getOrders, 18000);
-
-    return () => {
-      clearInterval(timer);
-    };
-  }, [print]);
+    if (isConnected) {
+      findOrders();
+    }
+  }, [isConnected, print]);
 }
