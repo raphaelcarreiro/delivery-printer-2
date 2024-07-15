@@ -13,18 +13,24 @@ import constants from '../constants/constants';
 import { onSocketRegister } from './ipc-events/onSocketRegister';
 import { onBeforeQuit } from './app-events/onBeforeQuit';
 import { onSecondInstance } from './app-events/onSecondInstance';
+import { onNotification } from './ipc-events/onNotification';
 
 const socket = io(constants.WS_BASE_URL);
 
 ipcMain.on('ipc-example', onIPCExample);
 ipcMain.handle('rawPrint', onRawPrint);
 ipcMain.handle('socket-register', (event, id: number) => onSocketRegister(event, socket, id));
+ipcMain.handle('notification', onNotification);
 
 app.on('before-quit', () => onBeforeQuit(socket));
 app.on('window-all-closed', () => onWindowAllClosed(app));
 
 if (!app.requestSingleInstanceLock()) {
   app.quit();
+}
+
+if (process.platform === 'win32') {
+  app.setAppUserModelId('SGrande Delivery Printer');
 }
 
 app
