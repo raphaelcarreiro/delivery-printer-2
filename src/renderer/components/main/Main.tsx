@@ -36,14 +36,13 @@ const Home: React.FC = () => {
   const auth = useAuth();
 
   useAdminSocketEvents();
-  const { isConnected, socket } = useAdminSocket();
+  const { isConnected } = useAdminSocket();
 
   usePrintingOrder();
   usePrintingBoard();
 
   function handleLogout() {
     auth.logout().then(() => {
-      socket?.disconnect();
       history.push('/login');
     });
   }

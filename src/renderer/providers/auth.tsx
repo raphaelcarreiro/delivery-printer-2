@@ -5,12 +5,12 @@ import { setUser } from 'renderer/store/modules/user/actions';
 import { User } from 'renderer/types/user';
 import { api } from 'renderer/services/api';
 import { AxiosError } from 'axios';
-import { Restaurant } from 'renderer/types/restaurant';
+import { useSocketConnections } from 'renderer/hooks/useSockets';
 
 interface AuthContextData {
   login(email: string, password: string): Promise<void>;
   logout(): Promise<void>;
-  isAuthenticated(): boolean;
+  authenticated: boolean;
   checkEmail(email: string): Promise<User>;
   loading: boolean;
   me(): Promise<void>;
@@ -32,6 +32,8 @@ const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [authenticated, setAuthenticated] = useState(false);
 
+  useSocketConnections(authenticated);
+
   useEffect(() => {
     setLoading(true);
     api
@@ -39,6 +41,7 @@ const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       .then(response => {
         dispatch(setRestaurant(response.data.restaurant));
         dispatch(setUser(response.data));
+        setAuthenticated(true);
       })
       .catch(err => console.error(err))
       .finally(() => setLoading(false));
@@ -47,11 +50,7 @@ const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const login = useCallback(
     async (email: string, password: string): Promise<void> => {
       try {
-        const response = await api.post('/login', {
-          email,
-          password,
-        });
-
+        const response = await api.post('/login', { email, password });
         dispatch(setRestaurant(response.data.data.restaurant));
         dispatch(setUser(response.data.data.user));
         setAuthenticated(true);
@@ -82,12 +81,9 @@ const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const logout = useCallback(async (): Promise<void> => {
     await api.post('/logout');
     setAuthenticated(false);
-    dispatch(setRestaurant({} as Restaurant));
+    dispatch(setRestaurant(null));
+    dispatch(setUser({} as User));
   }, [dispatch]);
-
-  const isAuthenticated = useCallback((): boolean => {
-    return authenticated;
-  }, [authenticated]);
 
   const me = useCallback(async () => {
     await api.get('/users/me');
@@ -98,7 +94,7 @@ const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       value={{
         login,
         logout,
-        isAuthenticated,
+        authenticated,
         checkEmail,
         loading,
         me,
