@@ -5,7 +5,6 @@ import { setUser } from 'renderer/store/modules/user/actions';
 import { User } from 'renderer/types/user';
 import { api } from 'renderer/services/api';
 import { AxiosError } from 'axios';
-import { useSocketConnections } from 'renderer/hooks/useSockets';
 
 interface AuthContextData {
   login(email: string, password: string): Promise<void>;
@@ -31,8 +30,6 @@ const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const dispatch = useDispatch();
   const [loading, setLoading] = useState(true);
   const [authenticated, setAuthenticated] = useState(false);
-
-  useSocketConnections(authenticated);
 
   useEffect(() => {
     setLoading(true);

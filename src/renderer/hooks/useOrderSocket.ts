@@ -11,6 +11,10 @@ export function useOrderSocket() {
     if (restaurant) {
       store.connect(restaurant.uuid);
     }
+
+    return () => {
+      store.disconnect();
+    };
   }, [restaurant]);
 
   return useSyncExternalStore(
