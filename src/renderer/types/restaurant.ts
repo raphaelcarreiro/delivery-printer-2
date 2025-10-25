@@ -16,6 +16,7 @@ export interface PrinterSetting {
 
 export interface Restaurant {
   id: number;
+  uuid: string;
   is_open: boolean;
   name: string;
   description: string;

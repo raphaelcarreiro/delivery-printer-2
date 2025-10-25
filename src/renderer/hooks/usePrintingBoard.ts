@@ -4,6 +4,7 @@ import { BoardControlMovement } from 'renderer/types/boardControlMovement';
 import constants from 'constants/constants';
 import { api } from 'renderer/services/api';
 import { uuidv4 } from 'renderer/helpers/uuid';
+import { useBoardSocket } from './useBoardSocket';
 
 type PrintingLayoutOptions = 'billing-content' | 'content';
 
@@ -13,7 +14,9 @@ type Response = {
   device_name: string | null;
 };
 
-export function usePrintingBoard(socket: Socket): void {
+export function usePrintingBoard(): void {
+  const { socket } = useBoardSocket();
+
   const print = useCallback(async (session: BoardControlMovement, layout: PrintingLayoutOptions) => {
     try {
       const response = await api.get<Response[]>(`${constants.BASE_URL}board-sessions/${session.id}/${layout}`);
@@ -34,16 +37,16 @@ export function usePrintingBoard(socket: Socket): void {
   }, []);
 
   useEffect(() => {
-    socket.on('print_board_billing', (session: BoardControlMovement) => {
+    socket?.on('print_board_billing', (session: BoardControlMovement) => {
       print(session, 'billing-content');
     });
 
-    socket.on('print_board', (session: BoardControlMovement) => {
+    socket?.on('print_board', (session: BoardControlMovement) => {
       print(session, 'content');
     });
 
     return () => {
-      socket.off('print_board_billing');
+      socket?.off('print_board_billing');
     };
   }, [print, socket]);
 }

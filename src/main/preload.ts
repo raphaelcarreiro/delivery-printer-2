@@ -30,7 +30,7 @@ const electronHandler = {
 
   rawPrint: (payload: RawPrint): Promise<void> => ipcRenderer.invoke('rawPrint', payload),
 
-  socketRegister: (restaurantId: number): Promise<void> => ipcRenderer.invoke('socket-register', restaurantId),
+  socketRegister: (restaurantUuid: string): Promise<void> => ipcRenderer.invoke('socket-register', restaurantUuid),
 
   notification: (orderSequence: string): Promise<void> => ipcRenderer.invoke('receive-order', orderSequence),
 };

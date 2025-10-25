@@ -19,7 +19,7 @@ const socket = io(constants.WS_BASE_URL);
 
 ipcMain.on('ipc-example', onIPCExample);
 ipcMain.handle('rawPrint', onRawPrint);
-ipcMain.handle('socket-register', (event, id: number) => onSocketRegister(event, socket, id));
+ipcMain.handle('socket-register', (event, id: string) => onSocketRegister(event, socket, id));
 ipcMain.handle('notification', onNotification);
 
 app.on('before-quit', () => onBeforeQuit(socket));

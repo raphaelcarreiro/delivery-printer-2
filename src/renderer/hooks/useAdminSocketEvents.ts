@@ -5,66 +5,54 @@ import { useSelector } from 'renderer/store/selector';
 import { useDispatch } from 'react-redux';
 import { setRestaurantIsOpen } from 'renderer/store/modules/restaurant/actions';
 import packageJson from '../../../package.json';
-
-const socket: Socket = io(constants.WS_BASE_URL);
-
-type UseSocket = [Socket, boolean];
+import { useAdminSocket } from './useAdminSocket';
 
 let timer: NodeJS.Timeout;
 
-export function useSocket(): UseSocket {
-  const [connected, setConnected] = useState(socket.connected);
+export function useAdminSocketEvents(): void {
   const restaurant = useSelector(state => state.restaurant);
   const dispatch = useDispatch();
+  const { socket, isConnected } = useAdminSocket();
 
   useEffect(() => {
-    socket.on('connect', () => {
-      setConnected(true);
-    });
-
-    socket.on('disconnect', () => {
-      setConnected(false);
-    });
-
-    socket.on('handleRestaurantState', (response: { isOpen: boolean }) => {
+    socket?.on('handleRestaurantState', (response: { isOpen: boolean }) => {
       dispatch(setRestaurantIsOpen(response.isOpen));
     });
 
-    socket.on('admin_ping', () => {
-      socket.emit('printer_ping', {
-        restaurant_id: restaurant?.id,
+    socket?.on('admin_ping', () => {
+      socket?.emit('printer_ping', {
+        restaurant_id: restaurant?.uuid,
         version: packageJson.version,
       });
     });
 
     return () => {
-      socket.off('handleRestaurantState');
-      socket.off('admin_ping');
+      socket?.off('handleRestaurantState');
+      socket?.off('admin_ping');
     };
-  }, [restaurant, dispatch]);
+  }, [restaurant, dispatch, socket]);
 
   useEffect(() => {
-    if (restaurant && connected) {
-      socket.emit('register', restaurant.id);
-      socket.emit('printer_ping', {
+    if (restaurant && isConnected) {
+      socket?.emit('printer_ping', {
         restaurant_id: restaurant.id,
+        restaurant_uuid: restaurant.uuid,
         version: packageJson.version,
       });
 
       timer = setInterval(() => {
-        socket.emit('printer_ping', {
+        socket?.emit('printer_ping', {
           restaurant_id: restaurant.id,
+          restaurant_uuid: restaurant.uuid,
           version: packageJson.version,
         });
       }, 30000);
 
-      window.electron.socketRegister(restaurant.id);
+      window.electron.socketRegister(restaurant.uuid);
     }
 
     return () => {
       clearTimeout(timer);
     };
-  }, [connected, restaurant]);
-
-  return [socket, connected];
+  }, [isConnected, restaurant, socket]);
 }

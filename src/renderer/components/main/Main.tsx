@@ -2,11 +2,12 @@ import React from 'react';
 import { useAuth } from 'renderer/providers/auth';
 import Status from '../status/Status';
 import { history } from 'renderer/services/history';
-import { useSocket } from 'renderer/hooks/useSocket';
+import { useAdminSocketEvents } from 'renderer/hooks/useAdminSocketEvents';
 import InsideLoading from '../loading/InsideLoading';
 import { usePrintingOrder } from 'renderer/hooks/usePrintingOrder';
 import { usePrintingBoard } from 'renderer/hooks/usePrintingBoard';
 import { makeStyles } from '@material-ui/core';
+import { useAdminSocket } from 'renderer/hooks/useAdminSocket';
 
 const styles = makeStyles({
   titleBar: {
@@ -34,14 +35,15 @@ const Home: React.FC = () => {
   const classes = styles();
   const auth = useAuth();
 
-  const [socket, wsConnected] = useSocket();
+  useAdminSocketEvents();
+  const { isConnected, socket } = useAdminSocket();
 
-  usePrintingOrder(socket, wsConnected);
-  usePrintingBoard(socket);
+  usePrintingOrder();
+  usePrintingBoard();
 
   function handleLogout() {
     auth.logout().then(() => {
-      socket.disconnect();
+      socket?.disconnect();
       history.push('/login');
     });
   }
@@ -55,7 +57,7 @@ const Home: React.FC = () => {
       <div className={classes.titleBar}>
         <span>sgrande delivery printer</span>
       </div>
-      <Status wsConnected={wsConnected} handleLogout={handleLogout} />
+      <Status wsConnected={isConnected} handleLogout={handleLogout} />
     </>
   );
 };

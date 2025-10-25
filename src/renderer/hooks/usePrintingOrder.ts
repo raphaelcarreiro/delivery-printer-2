@@ -4,6 +4,7 @@ import { OrderData } from 'renderer/types/order';
 import { api } from 'renderer/services/api';
 import constants from 'constants/constants';
 import { uuidv4 } from 'renderer/helpers/uuid';
+import { useOrderSocket } from './useOrderSocket';
 
 type PrintingLayoutOptions = 'print-created' | 'print-dispatched';
 
@@ -13,7 +14,9 @@ type Response = {
   device_name: string | null;
 };
 
-export function usePrintingOrder(socket: Socket, isConnected: boolean): void {
+export function usePrintingOrder(): void {
+  const { socket, isConnected } = useOrderSocket();
+
   const print = useCallback(async (uuid: string, layout: PrintingLayoutOptions) => {
     try {
       const response = await api.get<Response[]>(`${constants.BASE_URL}orders/${uuid}/${layout}`);
@@ -36,17 +39,17 @@ export function usePrintingOrder(socket: Socket, isConnected: boolean): void {
   }, []);
 
   useEffect(() => {
-    socket.on('printOrder', (order: OrderData) => {
+    socket?.on('printOrder', (order: OrderData) => {
       print(order.uuid, 'print-created');
     });
 
-    socket.on('printShipment', (order: OrderData) => {
+    socket?.on('printShipment', (order: OrderData) => {
       print(order.uuid, 'print-dispatched');
     });
 
     return () => {
-      socket.off('printShipment');
-      socket.off('printOrder');
+      socket?.off('printShipment');
+      socket?.off('printOrder');
     };
   }, [print, socket]);
 
