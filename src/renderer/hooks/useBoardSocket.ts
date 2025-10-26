@@ -11,11 +11,13 @@ export function useBoardSocket() {
     if (restaurant) {
       store.connect(restaurant.uuid);
     }
+  }, [restaurant]);
 
+  useEffect(() => {
     return () => {
       store.disconnect();
     };
-  }, [restaurant]);
+  }, []);
 
   return useSyncExternalStore(
     store.subscribe.bind(store),
