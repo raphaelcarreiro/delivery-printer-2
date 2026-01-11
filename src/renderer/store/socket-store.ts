@@ -50,6 +50,9 @@ export class SocketStore {
       withCredentials: true,
       transports: ['websocket'],
       auth: this.auth,
+      query: {
+        app: 'admin',
+      },
     });
 
     socket.on('connect', () => {
